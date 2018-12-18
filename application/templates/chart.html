@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.tymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Keywords</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+</head>
+<body>
+	<h1 style="margin-top:10px;margin-bottom:0;">Keywords of {{ assignee_email_address }}</h1>
+    <div id="chart"></div>
+    <script type="text/javascript">
+        var occurrenceData = { {% for key, value in keyword_frequencies.items() %}"{{key}}": {{value}},{% endfor %} };
+        var keywordSum = 32;
+        var chartData = [];
+        var maxNumberOfKeywords = 20;
+        var numberOfKeywords = 0;
+        var remainderKeywords = [];
+        var remainderOccurrences = 0;
+
+        function renderDonutChart(chartData) {
+            var fullHeight = $(window).height() - $("h1").height();
+            fullHeight -= 0.2 * fullHeight;
+
+            var fullWidth = Math.floor(1.6579 * fullHeight);
+            var marginSide = 28;
+            if (fullWidth > ($(window).width() - marginSide)) {
+                fullWidth = ($(window).width() - marginSide);
+                fullHeight = Math.floor(fullWidth / 1.6579)
+            }
+
+            var donut = donutChart()
+                .width(Math.floor(1.6579 * fullHeight))
+                .height(fullHeight)
+                .cornerRadius(3) // sets how rounded the corners are on each slice
+                .padAngle(0.015) // effectively dictates the gap between slices
+                .variable('Frequency')
+                .category('Keyword');
+
+            d3.select('#chart')
+                .datum(chartData) // bind data to the div
+                .call(donut); // draw chart in div
+        }
+
+        $(document).ready(function() {
+            for (var key in occurrenceData) {
+                if (occurrenceData.hasOwnProperty(key)) {
+                    console.log(key + " -> " + occurrenceData[key]);
+
+                    if (++numberOfKeywords >= maxNumberOfKeywords) {
+                        remainderKeywords.push(key);
+                        remainderOccurrences += occurrenceData[key];
+                        continue;
+                    }
+
+                    chartData.push({
+                        "Keyword": (key.length > 20) ? key.substring(0, 20) + "." : key,
+                        "Frequency": occurrenceData[key] / parseFloat(keywordSum),
+                        "Occurrences": occurrenceData[key]
+                    });
+                }
+            }
+
+            if (remainderKeywords.length > 0) {
+                var representativeKeywords = (remainderKeywords.length > 3)
+                    ? remainderKeywords.slice(0, 3).concat(["..."])
+                    : remainderKeywords;
+                representativeKeywords = representativeKeywords.map(k => (k.length > 8) ? k.substring(0, 8) + "." : k);
+
+                chartData.push({
+                    "Keyword": representativeKeywords.join(", "),
+                    "Frequency": remainderOccurrences / parseFloat(keywordSum)
+                });
+            }
+
+            renderDonutChart(chartData);
+
+            window.addEventListener('resize', function (event) {
+                $("#chart").children().remove();
+                renderDonutChart(chartData);
+            });
+        });
+    </script>
+</body>
+</html>

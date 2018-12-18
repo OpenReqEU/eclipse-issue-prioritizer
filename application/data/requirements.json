@@ -1,0 +1,152 @@
+[
+    {
+		"id": 1,
+		"title": "Auswertungssoftware",
+		"description": "Um die aufgezeichneten Trainingsdaten auswerten zu können wird eine Auswertungssoftware benötigt. Diese Software benötigt die Möglichkeit, um auf den internen Speicher der Uhr zugreifen zu können. Dafür wird eine Konnektivität benötigt. Die Auswertungen sollen die zurückgelegte Distanz, die Höhenmetermessung, die durchschnittliche Herzfrequenz sowie den Kalorienverbrauch beinhalten."
+	},
+	{
+		"id": 2,
+		"title": "Bluetooth",
+		"description": "Die Uhr soll eine Bluetooth Verbindung haben, damit andere Geräte angeschlossen werden können. Beispiel: Herzfrequenz-Brustgurt"
+	},
+	{
+		"id": 3,
+		"title": "Display-Beleuchtung",
+		"description": "Die Uhr benötigt eine Display-Beleuchtung um auch in der Dämmerung bedient werden zu können."
+	},
+	{
+		"id": 4,
+		"title": "Distanzmessung",
+		"description": "Für eine vollständige Auswertung eines Trainings ist auch eine Distanzmessung notwendig. Dafür werden die Daten von einem GPS Sensor benötigt. Diese Daten werden für die Auswertungssoftware benötigt und daher im Speicher abgelegt."
+	},
+	{
+		"id": 5,
+		"title": "Funkmodul",
+		"description": "Für die interne Zeitmessung ist ein Funk Modul notwendig. Daher soll ein möglichst energiesparendes Modul in der Uhr verbaut werden, damit ein häufiger Abgleich der Zeit über Funk möglich ist."
+	},
+	{
+		"id": 6,
+		"title": "GPS",
+		"description": "Zum Erfassen von Positionsdaten soll ein GPS System verwendet werden. Mit diesen Daten und der Zeitmessung kann dann die Geschwindigkeit und die zurückgelegte Strecke gemessen werden."
+	},
+	{
+		"id": 7,
+		"title": "Geschwindigkeitsmessung",
+		"description": "Als Auswertung nach einem Training muss auch die Geschwindigkeit zur Verfügung stehen. Folgende Auswertungen sollen anzeigbar sein: Durchschnittliche Geschwindigkeit, maximale Geschwindigkeit. Dafür ist eine Zeitmessung, Distanzmessung und ein Speicher notwendig."
+	},
+	{
+		"id": 8,
+		"title": "Größe, Gewicht, Körperfett, Alter, Geschlecht",
+		"description": "Für die Berechnung des BMI und für andere Berechnungen des Trainingserfolges ist es notwendig, dass die Werte für Größe, Gewicht, Körperfett, Alter und Geschlecht in der Uhr gespeichert werden können. Die im Speicher abgelegten Daten können dann von der Auswertungssoftware verwendet werden."
+	},
+	{
+		"id": 9,
+		"title": "Herzfrequenzmessung",
+		"description": "Für die Auswertung des Trainingserfolges wird die durchschnittliche Herzfrequenz benötigt. Diese soll aufgrund einer Herzfrequenzmessung, zum Beispiel mit einem Brustgurt, berechnet werden können."
+	},
+	{
+		"id": 10,
+		"title": "Höhenmessung",
+		"description": "Um bei einem Training die zurückgelegten Höhenmeter auswerten zu können, ist ein Höhenmesser notwendig. Diese Werte sollen im internen Speicher für eine spätere Auswertung mit der Auswertungssoftware gespeichert werden."
+	},
+	{
+		"id": 11,
+		"title": "Idealer BMI",
+		"description": "Die Uhr soll aufgrund der Daten über Größe, Gewicht, Körperfett, Alter und Geschlecht den idealen BMI für den jeweiligen Benutzer berechnen können."
+	},
+	{
+		"id": 12,
+		"title": "Infrarot",
+		"description": "Für die Verbindung mit einem Computer wird neben WLAN und Bluetooth auch eine Konnektivität über Infrarot benötigt."
+	},
+	{
+		"id": 13,
+		"title": "Kalorienverbrauchsmessung",
+		"description": "Für die Darstellung des Trainingserfolges ist auch eine Kalorienverbrauchsmessung sinnvoll. Dabei sollen am Ende eines Trainings die gesamten verbrauchten Kalorien angezeigt werden. Zusätzlich soll der durchschnittliche Verbrauch pro Minute angezeigt werden. Für die Messung (bzw. Schätzung) des Kalorienverbrauchs werden der Luftdruck, die Herzfrequenz, sowie Daten bezüglich Größe, Gewicht, Körperfett, Alter und Geschlecht benötigt."
+	},
+	{
+		"id": 14,
+		"title": "Kompass",
+		"description": "Da im Zuge des Trainings auch unübersichtliche Strecken zurückgelegt werden können (z.B. Waldstrecke), soll die Uhr zur besseren Orientierung einen Kompass beinhalten."
+	},
+	{
+		"id": 15,
+		"title": "Konnektivität",
+		"description": "Es muss eine Möglichkeit bestehen, dass eine Verbindung mit einem PC oder einem Tablet hergestellt werden kann, um die Trainingsdaten überspielen zu können."
+	},
+	{
+		"id": 16,
+		"title": "Kontrast",
+		"description": "Damit die Uhr auch bei Tageslicht verwendet werden kann, muss das Display über einen hohen Kontrast verfügen."
+	},
+	{
+		"id": 17,
+		"title": "Lade-Anzeige",
+		"description": "Es sollte möglich sein, den Ladezustand der Uhr anzeigen zu können, damit Benutzer rechtzeitig die Uhr aufladen können. Diese Information soll dann auf dem Display angezeigt werden können."
+	},
+	{
+		"id": 18,
+		"title": "Lade Funktion",
+		"description": "Es soll ein Ladegerät mitgeliefert werden, damit die Uhr wieder aufgeladen werden kann. Dazu muss die Uhr den Ladezustand anzeigen können. Es soll auch verschiedene Lade Modi geben."
+	},
+	{
+		"id": 19,
+		"title": "Lade-Modus",
+		"description": "Das Ladegerät soll in zwei verschiedenen Modi betrieben werden können. Ein Schnelllademodus und ein schonender Langlademodus. Mit dem Langlademodus soll die Batterie der Uhr geschont werden um die Lebensdauer zu erhöhen, während der Schnelllade Modus nur in seltenen Fällen verwendet werden soll."
+	},
+	{
+		"id": 20,
+		"title": "Luftdruckmessung",
+		"description": "Für diverse Auswertungen wie z.B. dem Kalorienverbrauch, kann der Luftdruck das Ergebnis verbessern. Daher sollte in der Uhr auch ein Barometer eingebaut werden."
+	},
+	{
+		"id": 21,
+		"title": "Manuelle Zeiteinstellung",
+		"description": "Falls kein Funksignal vorhanden ist oder der Benutzer auf einen Abgleich über Funk verzichten will, muss es auch die Möglichkeit geben, die Zeit manuell einzustellen."
+	},
+	{
+		"id": 22,
+		"title": "Pedometer",
+		"description": "Für die Berechnung der Schrittzahl wird ein Pedometer benötigt."
+	},
+	{
+		"id": 23,
+		"title": "Schrittlänge",
+		"description": "Für die Berechnung der Schrittlänge muss einerseits die zurückgelegte Distanz, aber auch die Anzahl der Schritte bekannt sein. Für die Anzahl der Schritte wird ein Pedometer benötigt."
+	},
+	{
+		"id": 24,
+		"title": "Speicherfunktion",
+		"description": "Für die spätere Auswertung sollen Daten im internen Speicher abgelegt werden. Dabei soll der Speicherplatz sowohl für die zurückgelegte Distanz, die Höhenmetermessung, die durchschnittliche Herzfrequenz als auch für den Kalorienverbrauch benutzt werden. Die im Speicher abgelegten Daten werden später durch die Auswertungssoftware abgefragt."
+	},
+	{
+		"id": 25,
+		"title": "Stoppuhr",
+		"description": "Die Uhr soll auch bestimmte Zeitspannen mittels einer Stoppuhr-Funktion anzeigen können. Die Berechnung basiert dabei auf der internen Zeitmessung."
+	},
+	{
+		"id": 26,
+		"title": "Uhr Anzeige",
+		"description": "Die Uhr muss neben einer Zeitmessung auch das Datum anzeigen. Weitere Funktionen, die angezeigt werden müssen sind die Stoppuhr und die Einstellung eines Weckers. Um die Uhr auch im Freien benutzen zu können ist es notwendig, dass das Display über einen hohen Kontrast verfügt. Für eine Benutzbarkeit in der Nacht bzw. am Abend soll das Display auch über eine Beleuchtung verfügen."
+	},
+	{
+		"id": 27,
+		"title": "WLAN",
+		"description": "Die Daten aus dem Speicher der Uhr sollen auch über WLAN verfügbar sein."
+	},
+	{
+		"id": 28,
+		"title": "Wecker Funktion",
+		"description": "Die Uhr soll auch als Wecker verwendet werden können. Es ist daher notwendig, dass eine Weckerfunktion in der Uhr eingebaut ist."
+	},
+	{
+		"id": 29,
+		"title": "Zeitsynchronisierung",
+		"description": "Um die Uhr immer im Takt mit der aktuellen Zeit zu halten, ist es notwendig, dass die Uhr in bestimmten Abständen über Funk synchronisiert wird. Dazu wird ein eigenes Funkmodul benötigt."
+	},
+	{
+		"id": 30,
+		"title": "Zeitmessung",
+		"description": "Als Basisfunktion muss die Uhr einen internen Zeitmesser haben. Dieser wird nicht nur für die Anzeige der aktuellen Zeit, sondern auch für die Zeitmessung während eines Trainings verwendet. Außerdem werden die Informationen im Speicher mit der jeweiligen Zeit abgelegt. Damit soll später die Auswertung besser nachvollziehbar sein."
+	}
+]

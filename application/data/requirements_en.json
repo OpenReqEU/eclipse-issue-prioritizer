@@ -1,0 +1,42 @@
+[
+    {
+		"id": 1,
+		"title": "Evaluation Software",
+		"description": "For evaluating the recorded training data, an evaluation software is required. This software requires the connection and the access to the clock's internal memory. The evaluation should contain measured information regarding the distance, the height, the average heart rate, and the calorie consumption."
+	},
+	{
+		"id": 2,
+		"title": "Distance Measurement",
+		"description": "For statistical purposes, a distance measurement is necessary which needs data from a GPS sensor. This data is needed for the evaluation software and therefore stored in memory."
+	},
+	{
+		"id": 3,
+		"title": "GPS",
+		"description": "To capture position data, a GPS sensor should be used. Through the measured position and time information, the speed and the distance can be measured."
+	},
+	{
+		"id": 4,
+		"title": "Speed Measurement",
+		"description": "As evaluation after a workout, the average speed must be shown. The following statistics should be displayed: average speed and maximum speed. For measuring the average and maximum speed, time and distance have to be measured, and a storage unit for storing the data is necessary."
+	},
+	{
+		"id": 5,
+		"title": "Ideal BMI",
+		"description": "Based on the data on height, weight, body fat, age and gender, the watch should be able to calculate the ideal BMI for a user."
+	},
+	{
+		"id": 6,
+		"title": "Infrared",
+		"description": "In order to be able to connect the watch with a computer, WLAN, Bluetooth, and infrared modules must be available."
+	},
+	{
+		"id": 7,
+		"title": "Data-Storage Function",
+		"description": "For evaluation purposes, the data should be stored in the internal memory. The memory is used for saving the measured information such as the distance, the height, the average heart rate, and the calorie consumption. The stored data in the memory will then be used by the evaluation software."
+	},
+	{
+		"id": 8,
+		"title": "Time Measurement",
+		"description": "The clock must have an internal timer which is used for saving the current time and the measured time during a workout. This time information is then stored in memory and used for further evaluation of the data."
+	}
+]
