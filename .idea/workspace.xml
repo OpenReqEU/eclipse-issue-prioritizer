@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1fd0a581-90f0-4041-a0c8-dbd04f76ef74" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/openReqTwitterExtraction.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/openReqTwitterExtraction.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/__main__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/controllers/recommendation_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/controllers/recommendation_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/services/bugzillafetcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/services/bugzillafetcher.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/test/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/test/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/test/test_recommendation_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/test/test_recommendation_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/unsupervised/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/unsupervised/svd.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/util/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/util/helper.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -40,11 +31,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/application/test/test_recommendation_controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="19" column="63" selection-start-line="19" selection-start-column="63" selection-end-line="19" selection-end-column="63" />
+            <state relative-caret-position="2448">
+              <caret line="144" column="34" lean-forward="true" selection-start-line="144" selection-start-column="34" selection-end-line="144" selection-end-column="34" />
               <folding>
                 <element signature="e#17#55#0" expanded="true" />
               </folding>
@@ -52,11 +43,15 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Dockerfile">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
+            <state relative-caret-position="529">
+              <caret line="33" selection-start-line="33" selection-end-line="34" />
+              <folding>
+                <element signature="e#0#16#0" expanded="true" />
+                <marker date="1545217548071" expanded="true" signature="2437:2438" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -64,7 +59,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/application/test/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
+            <state relative-caret-position="357">
               <caret line="29" selection-start-line="29" selection-end-line="29" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
@@ -84,9 +79,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>correct</find>
-      <find>slow</find>
-      <find>please</find>
       <find>glad</find>
       <find>contain</find>
       <find>all</find>
@@ -114,6 +106,9 @@
       <find>test</find>
       <find>included_bug_ids</find>
       <find>template_folder</find>
+      <find>chart</find>
+      <find>key</find>
+      <find>chart_key</find>
     </findStrings>
     <replaceStrings>
       <replace>: false</replace>
@@ -148,7 +143,6 @@
         <option value="$PROJECT_DIR$/application/util/util.py" />
         <option value="$PROJECT_DIR$/application/models/response.py" />
         <option value="$PROJECT_DIR$/Dockerfile" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/application/data/stopwords" />
         <option value="$PROJECT_DIR$/application/preprocessing/tokenizer.py" />
         <option value="$PROJECT_DIR$/application/preprocessing/pos.py" />
@@ -163,20 +157,21 @@
         <option value="$PROJECT_DIR$/application/services/keywordextractor.py" />
         <option value="$PROJECT_DIR$/application/util/helper.py" />
         <option value="$PROJECT_DIR$/application/services/bugzillafetcher.py" />
-        <option value="$PROJECT_DIR$/application/controllers/recommendation_controller.py" />
         <option value="$PROJECT_DIR$/application/__main__.py" />
         <option value="/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/templating.py" />
         <option value="$PROJECT_DIR$/application/test/__init__.py" />
         <option value="$PROJECT_DIR$/application/test/test_recommendation_controller.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/application/controllers/recommendation_controller.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="106" />
-    <option name="y" value="99" />
-    <option name="width" value="2208" />
-    <option name="height" value="1208" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="450" />
+    <option name="y" value="58" />
+    <option name="width" value="1681" />
+    <option name="height" value="1143" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -186,6 +181,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -202,13 +198,12 @@
               <item name="openReqPrioritizer" type="b2602c69:ProjectViewProjectNode" />
               <item name="openReqPrioritizer" type="462c0819:PsiDirectoryNode" />
               <item name="application" type="462c0819:PsiDirectoryNode" />
-              <item name="swagger" type="462c0819:PsiDirectoryNode" />
+              <item name="controllers" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -296,6 +291,9 @@
       <module name="openReqTwitterExtraction" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="$USER_HOME$/TU Graz/PhD/Courses/Neural Networks/Practical Course/Assignments/Task 2/Solutions/Implementation/venv/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/application/test" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -361,12 +359,14 @@
       <workItem from="1545049093581" duration="13908000" />
       <workItem from="1545126404349" duration="5011000" />
       <workItem from="1545136944540" duration="51000" />
-      <workItem from="1545137025953" duration="3299000" />
+      <workItem from="1545137025953" duration="4299000" />
+      <workItem from="1545168683543" duration="288000" />
+      <workItem from="1545213663146" duration="1933000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69997000" />
+    <option name="totallyTimeSpent" value="73218000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -378,10 +378,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="2560" height="1363" extended-state="6" />
+    <frame x="450" y="58" width="1681" height="1143" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23604466" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.37262124" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info id="Designer" order="3" />
@@ -400,7 +400,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32938388" />
-      <window_info anchor="bottom" id="Python Console" order="12" visible="true" weight="0.38702112" />
+      <window_info anchor="bottom" id="Python Console" order="12" weight="0.38702112" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -436,7 +436,6 @@
     <entry file="file://$PROJECT_DIR$/setup.py" />
     <entry file="file://$PROJECT_DIR$/Pipfile" />
     <entry file="file://$PROJECT_DIR$/application/models/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/README.md" />
     <entry file="file:///usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/datetime.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="542">
@@ -638,17 +637,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="89" lean-forward="true" selection-start-line="89" selection-end-line="89" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-            <marker date="1545067679280" expanded="true" signature="2319:2320" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/pattern/server/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="81">
@@ -687,16 +675,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/__main__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="11" lean-forward="true" selection-start-line="11" selection-end-line="11" />
-          <folding>
-            <element signature="e#24#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/app.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="190">
@@ -711,9 +689,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/application/swagger/swagger.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1175">
+          <caret line="21" column="6" selection-start-line="21" selection-start-column="6" selection-end-line="21" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/application/__main__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="355">
+          <caret line="39" column="27" lean-forward="true" selection-start-line="39" selection-start-column="27" selection-end-line="39" selection-end-column="27" />
+          <folding>
+            <element signature="e#24#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="204">
+            <caret line="12" column="8" lean-forward="true" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/application/test/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
+        <state relative-caret-position="357">
           <caret line="29" selection-start-line="29" selection-end-line="29" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
@@ -723,32 +728,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/requirements.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/application/test/test_recommendation_controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" column="63" selection-start-line="19" selection-start-column="63" selection-end-line="19" selection-end-column="63" />
-          <folding>
-            <element signature="e#17#55#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/application/swagger/swagger.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1175">
-          <caret line="21" column="6" selection-start-line="21" selection-start-column="6" selection-end-line="21" selection-end-column="6" />
+        <state relative-caret-position="255">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Dockerfile">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
+        <state relative-caret-position="204">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="529">
+          <caret line="33" selection-start-line="33" selection-end-line="34" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+            <marker date="1545217548071" expanded="true" signature="2437:2438" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/application/test/test_recommendation_controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2448">
+          <caret line="144" column="34" lean-forward="true" selection-start-line="144" selection-start-column="34" selection-end-line="144" selection-end-column="34" />
+          <folding>
+            <element signature="e#17#55#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

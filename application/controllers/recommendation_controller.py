@@ -30,7 +30,8 @@ def generate_chart_url(body):  #noga: E501
         if request.unique_key() in CHART_URLs:
             return ResponseChart(False, None, CHART_URLs[request.unique_key()])
 
-        chart_key = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        #chart_key = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        chart_key = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
         chart_url = "http://{}:{}/prioritizer/chart/c/{}".format(helper.app_host(), helper.app_port(), chart_key)
 
         if request.unique_key() not in ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER:
