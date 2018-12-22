@@ -1,8 +1,12 @@
 import connexion
 import logging
-from application.models.request import Request  # noqa: E501
-from application.models.response import Response  # noqa: E501
-from application.models.response_chart import ResponseChart  # noqa: E501
+from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest  # noqa: E501
+from application.models.prioritized_recommendations_response import PrioritizedRecommendationsResponse  # noqa: E501
+from application.models.like_requirement_request import LikeRequirementRequest  # noqa: E501
+from application.models.like_requirement_response import LikeRequirementResponse  # noqa: E501
+from application.models.defer_requirement_request import DeferRequirementRequest  # noqa: E501
+from application.models.defer_requirement_response import DeferRequirementResponse  # noqa: E501
+from application.models.chart_response import ChartResponse  # noqa: E501
 from application.models.requirement import Requirement  # noqa: E501
 from application.services import bugzillafetcher
 from application.services import keywordextractor
@@ -26,9 +30,9 @@ def generate_chart_url(body):  #noga: E501
 
     if connexion.request.is_json:
         content = connexion.request.get_json()
-        request = Request.from_dict(content)
+        request = PrioritizedRecommendationsRequest.from_dict(content)
         if request.unique_key() in CHART_URLs:
-            return ResponseChart(False, None, CHART_URLs[request.unique_key()])
+            return ChartResponse(False, None, CHART_URLs[request.unique_key()])
 
         #chart_key = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
         chart_key = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
@@ -47,7 +51,7 @@ def generate_chart_url(body):  #noga: E501
 
         CHART_URLs[request.unique_key()] = chart_url
         CHART_REQUESTs[chart_key] = request
-        response = ResponseChart(False, None, chart_url)
+        response = ChartResponse(False, None, chart_url)
 
     return response
 
@@ -67,7 +71,7 @@ def recommend_prioritized_issues(body):  # noqa: E501
 
     if connexion.request.is_json:
         content = connexion.request.get_json()
-        request = Request.from_dict(content)
+        request = PrioritizedRecommendationsRequest.from_dict(content)
 
         if request.unique_key() in CACHED_RESPONSE:
             return CACHED_RESPONSE[request.unique_key()]
@@ -120,14 +124,56 @@ def recommend_prioritized_issues(body):  # noqa: E501
                 "summary": r.summary,
                 "product": r.product,
                 "component": r.component,
-                "priority": float("{0:.2f}".format(r.computed_priority)),
+                "priority":  ("{0:.2f}".format(r.computed_priority)),
                 "numberOfCC": len(r.cc),
                 "milestone": r.target_milestone,
                 "keywords": r.summary_tokens
             }]
 
-        response = Response(False, None, rankedBugs=ranked_bugs_list)
+        response = PrioritizedRecommendationsResponse(False, None, rankedBugs=ranked_bugs_list)
         CACHED_RESPONSE[request.unique_key()] = response
+
+    return response
+
+
+def like_prioritized_issue(body):  # noqa: E501
+    response = None
+
+    if connexion.request.is_json:
+        content = connexion.request.get_json()
+        request = LikeRequirementRequest.from_dict(content)
+        response = LikeRequirementResponse(False, None)
+
+        response.error = True
+        response.errorMessage = "Not yet implemented!"
+
+    return response
+
+
+def dislike_prioritized_issue(body):  # noqa: E501
+    response = None
+
+    if connexion.request.is_json:
+        content = connexion.request.get_json()
+        request = LikeRequirementRequest.from_dict(content)
+        response = LikeRequirementResponse(False, None)
+
+        response.error = True
+        response.errorMessage = "Not yet implemented!"
+
+    return response
+
+
+def defer_prioritized_issue(body):  # noqa: E501
+    response = None
+
+    if connexion.request.is_json:
+        content = connexion.request.get_json()
+        request = DeferRequirementRequest.from_dict(content)
+        response = DeferRequirementResponse(False, None)
+
+        response.error = True
+        response.errorMessage = "Not yet implemented!"
 
     return response
 
@@ -163,10 +209,8 @@ def compute_contentbased_maut_priority(assignee_email_address: str, keywords_of_
     keyword_occurrences = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
     keyword_occurrences_of_existing_keywords = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), filter(lambda k: k in requirement.summary_tokens, keywords_of_stakeholder)))
     assert(sum(keyword_occurrences_of_existing_keywords.values()) == sum(keyword_occurrences.values()))
-    print("-"*80)
-    print(requirement.id)
-    print(keyword_occurrences_of_existing_keywords)
-    print("-"*80)
+    #print(requirement.id)
+    #print(keyword_occurrences_of_existing_keywords)
     n_keyword_occurrences = sum(keyword_occurrences.values())
     n_keywords_of_stakeholder = len(keywords_of_stakeholder)
     responsibility_weight = max(float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0, 0.05)

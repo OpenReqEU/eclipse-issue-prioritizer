@@ -37,7 +37,7 @@ paths:
         description: "Request object"
         required: true
         schema:
-          $ref: "#/definitions/Requirement"
+          $ref: "#/definitions/PrioritizedRecommendationsRequest"
       responses:
         200:
           description: "successful operation"
@@ -65,19 +65,105 @@ paths:
         description: "Request object"
         required: true
         schema:
-          $ref: "#/definitions/Requirement"
+          $ref: "#/definitions/ChartRequest"
       responses:
         200:
           description: "successful operation"
           schema:
-            $ref: "#/definitions/PrioritizedRecommendationsResponse"
+            $ref: "#/definitions/ChartResponse"
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "application.controllers.recommendation_controller"
+  /prioritizer/like:
+    post:
+      tags:
+      - "Recommender"
+      summary: "Like a requirement."
+      description: ""
+      operationId: "like_prioritized_issue"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Request object"
+        required: true
+        schema:
+          $ref: "#/definitions/LikeRequirementRequest"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/LikeRequirementResponse"
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "application.controllers.recommendation_controller"
+  /prioritizer/dislike:
+    post:
+      tags:
+      - "Recommender"
+      summary: "Dislike a requirement."
+      description: ""
+      operationId: "dislike_prioritized_issue"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Request object"
+        required: true
+        schema:
+          $ref: "#/definitions/LikeRequirementRequest"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/LikeRequirementResponse"
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "application.controllers.recommendation_controller"
+  /prioritizer/defer:
+    post:
+      tags:
+      - "Recommender"
+      summary: "Defer a requirement in the list."
+      description: ""
+      operationId: "defer_prioritized_issue"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Request object"
+        required: true
+        schema:
+          $ref: "#/definitions/DeferRequirementRequest"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/DeferRequirementResponse"
         405:
           description: "Invalid input"
       x-swagger-router-controller: "application.controllers.recommendation_controller"
 definitions:
-  Requirement:
+  PrioritizedRecommendationsRequest:
     type: "object"
     properties:
+      agentID:
+        type: "string"
       assignee:
         type: "string"
       components:
@@ -92,6 +178,99 @@ definitions:
         type: "array"
         items:
           type: "string"
+    required:
+      - agentID
+      - assignee
+      - components
+      - products
+      - keywords
+  ChartRequest:
+    type: "object"
+    properties:
+      agentID:
+        type: "string"
+      assignee:
+        type: "string"
+      components:
+        type: "array"
+        items:
+          type: "string"
+      products:
+        type: "array"
+        items:
+          type: "string"
+      keywords:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - agentID
+      - assignee
+      - components
+      - products
+      - keywords
+  LikeRequirementRequest:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      agentID:
+        type: "string"
+      assignee:
+        type: "string"
+      components:
+        type: "array"
+        items:
+          type: "string"
+      products:
+        type: "array"
+        items:
+          type: "string"
+      keywords:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - id
+      - agentID
+      - assignee
+      - components
+      - products
+      - keywords
+  DeferRequirementRequest:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      agentID:
+        type: "string"
+      interval:
+        type: "integer"
+        format: "int64"
+      assignee:
+        type: "string"
+      components:
+        type: "array"
+        items:
+          type: "string"
+      products:
+        type: "array"
+        items:
+          type: "string"
+      keywords:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - id
+      - agentID
+      - interval
+      - assignee
+      - components
+      - products
+      - keywords
   PrioritizedRecommendationsResponse:
     type: "object"
     properties:
@@ -99,29 +278,60 @@ definitions:
         type: "boolean"
       errorMessage:
         type: "string"
-#      rankedBugs:
-#        type: "array"
-#        items:
-#          type: "object"
-#          properties:
-#            id:
-#              type: "integer"
-#              format: "int64"
-#            summary:
-#              type: "string"
-#            product:
-#              type: "string"
-#            component:
-#              type: "string"
-#            priority:
-#              type: "number"
-#              format: "float"
-#              minimum: "0"
-#              maximum: "1"
-#            numberOfCC:
-#              type: "integer"
-#              format: "int32"
-#            milestone:
-#              type: "string"
+      rankedBugs:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+              format: "int64"
+            summary:
+              type: "string"
+            product:
+              type: "string"
+            component:
+              type: "string"
+            priority:
+              type: "number"
+              format: "float"
+              minimum: 0
+              maximum: 1
+            numberOfCC:
+              type: "integer"
+              format: "int32"
+            milestone:
+              type: "string"
+            keywords:
+              type: "array"
+              items:
+                type: "string"
     xml:
-      name: "recommendations"
+      name: "response"
+  ChartResponse:
+    type: "object"
+    properties:
+      error:
+        type: "boolean"
+      errorMessage:
+        type: "string"
+    xml:
+      name: "response"
+  LikeRequirementResponse:
+    type: "object"
+    properties:
+      error:
+        type: "boolean"
+      errorMessage:
+        type: "string"
+    xml:
+      name: "response"
+  DeferRequirementResponse:
+    type: "object"
+    properties:
+      error:
+        type: "boolean"
+      errorMessage:
+        type: "string"
+    xml:
+      name: "response"
