@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from flask import json
 from urllib.parse import urlparse
 from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest
+from application.models.chart_request import ChartRequest
 from application.util import helper
 from application.test import BaseTestCase
 from bs4 import BeautifulSoup
@@ -12,12 +13,14 @@ import json as js
 
 class TestRecommendationController(BaseTestCase):
     """RecommendationController integration tests"""
+    def setUp(self):
+        self.agent_id = "9ff699c7-94de-4105-9f74-0107653daa89"
 
     def test_compute_prioritization(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        body = PrioritizedRecommendationsRequest(assignee="simon.scholz@vogella.com", components=expected_components,
-                                                 products=expected_products, keywords=[])
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee="simon.scholz@vogella.com",
+                                                 components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
             "/prioritizer/compute",
             method="POST",
@@ -44,8 +47,8 @@ class TestRecommendationController(BaseTestCase):
     def test_generate_chart_url(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        body = PrioritizedRecommendationsRequest(assignee="simon.scholz@vogella.com", components=expected_components,
-                                                 products=expected_products, keywords=[])
+        body = ChartRequest(agent_id=self.agent_id, assignee="simon.scholz@vogella.com", components=expected_components,
+                            products=expected_products, keywords=[])
         response = self.client.open(
             "/prioritizer/chart",
             method="POST",
@@ -63,8 +66,8 @@ class TestRecommendationController(BaseTestCase):
     def test_cached_chart_url(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        body = PrioritizedRecommendationsRequest(assignee="simon.scholz@vogella.com", components=expected_components,
-                                                 products=expected_products, keywords=[])
+        body = ChartRequest(agent_id=self.agent_id, assignee="simon.scholz@vogella.com", components=expected_components,
+                            products=expected_products, keywords=[])
         response = self.client.open(
             "/prioritizer/chart",
             method="POST",
@@ -98,8 +101,8 @@ class TestRecommendationController(BaseTestCase):
     def test_not_cached_chart_url(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        body = PrioritizedRecommendationsRequest(assignee="simon.scholz@vogella.com", components=expected_components,
-                                                 products=expected_products, keywords=[])
+        body = ChartRequest(agent_id=self.agent_id, assignee="simon.scholz@vogella.com", components=expected_components,
+                            products=expected_products, keywords=[])
         response = self.client.open(
             "/prioritizer/chart",
             method="POST",
@@ -115,8 +118,8 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(self._is_valid_url(previous_url), "Invalid URL {}".format(previous_url))
 
         expected_components = ["UI"]
-        body = PrioritizedRecommendationsRequest(assignee="simon.scholz@vogella.com", components=expected_components,
-                                                 products=expected_products, keywords=[])
+        body = ChartRequest(agent_id=self.agent_id, assignee="simon.scholz@vogella.com", components=expected_components,
+                            products=expected_products, keywords=[])
         response = self.client.open(
             "/prioritizer/chart",
             method="POST",
@@ -137,8 +140,8 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        body = PrioritizedRecommendationsRequest(assignee=assignee, components=expected_components,
-                                                 products=expected_products, keywords=[])
+        body = ChartRequest(agent_id=self.agent_id, assignee=assignee, components=expected_components,
+                            products=expected_products, keywords=[])
         response = self.client.open(
             "/prioritizer/chart",
             method="POST",

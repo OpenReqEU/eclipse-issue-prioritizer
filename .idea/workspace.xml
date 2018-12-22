@@ -2,18 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1fd0a581-90f0-4041-a0c8-dbd04f76ef74" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/application/models/chart_request.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/models/defer_requirement_request.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/models/defer_requirement_response.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/models/like_requirement_request.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/models/like_requirement_response.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/controllers/recommendation_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/controllers/recommendation_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/request.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/prioritized_recommendations_request.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/response.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/prioritized_recommendations_response.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/response_chart.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/chart_response.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/swagger/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/application/swagger/swagger.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/test/test_recommendation_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/test/test_recommendation_controller.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -42,10 +31,13 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/application/swagger/swagger.yaml">
+        <entry file="file://$PROJECT_DIR$/application/test/test_recommendation_controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="815">
-              <caret line="319" selection-start-line="319" selection-end-line="319" />
+            <state relative-caret-position="267">
+              <caret line="36" selection-start-line="36" selection-end-line="36" />
+              <folding>
+                <element signature="e#17#55#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -87,10 +79,10 @@
       <find>prio</find>
       <find>Priori</find>
       <find>List</find>
-      <find>print(</find>
       <find>agent_id</find>
       <find>PrioritizedRecommendationsRequest</find>
       <find>priori</find>
+      <find>print(</find>
     </findStrings>
     <replaceStrings>
       <replace>: false</replace>
@@ -137,13 +129,11 @@
         <option value="$PROJECT_DIR$/application/__main__.py" />
         <option value="/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/flask/templating.py" />
         <option value="$PROJECT_DIR$/application/test/__init__.py" />
-        <option value="$PROJECT_DIR$/application/test/test_recommendation_controller.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/application/models/prioritizedrecommendationsrequest.py" />
         <option value="$PROJECT_DIR$/application/models/response_chart.py" />
-        <option value="$PROJECT_DIR$/application/controllers/recommendation_controller.py" />
         <option value="$PROJECT_DIR$/application/models/prioritized_recommendations_response.py" />
         <option value="$PROJECT_DIR$/application/models/chart_response.py" />
         <option value="$PROJECT_DIR$/application/models/defer_requirement_response.py" />
@@ -153,6 +143,8 @@
         <option value="$PROJECT_DIR$/application/swagger/swagger.yaml" />
         <option value="$PROJECT_DIR$/application/models/prioritized_recommendations_request.py" />
         <option value="$PROJECT_DIR$/application/models/chart_request.py" />
+        <option value="$PROJECT_DIR$/application/controllers/recommendation_controller.py" />
+        <option value="$PROJECT_DIR$/application/test/test_recommendation_controller.py" />
       </list>
     </option>
   </component>
@@ -279,9 +271,6 @@
       <module name="openReqTwitterExtraction" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="$USER_HOME$/TU Graz/PhD/Courses/Neural Networks/Practical Course/Assignments/Task 2/Solutions/Implementation/venv/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/application/test" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -352,12 +341,12 @@
       <workItem from="1545213663146" duration="1933000" />
       <workItem from="1545295931951" duration="432000" />
       <workItem from="1545310675826" duration="175000" />
-      <workItem from="1545496118889" duration="7288000" />
+      <workItem from="1545496118889" duration="7892000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="81113000" />
+    <option name="totallyTimeSpent" value="81717000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -372,7 +361,7 @@
     <frame x="0" y="23" width="1634" height="1362" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.28065738" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28065738" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info id="Designer" order="3" />
@@ -391,7 +380,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32938388" />
-      <window_info anchor="bottom" id="Python Console" order="12" weight="0.38702112" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.3865415" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -420,7 +409,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/application/models/__init__.py" />
     <entry file="file:///usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/datetime.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="542">
@@ -684,16 +672,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/test/test_recommendation_controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3145">
-          <caret line="185" lean-forward="true" selection-start-line="185" selection-end-line="185" />
-          <folding>
-            <element signature="e#17#55#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/application/test/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
@@ -708,16 +686,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="447">
           <caret line="84" column="10" lean-forward="true" selection-start-line="84" selection-start-column="10" selection-end-line="84" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/application/models/prioritized_recommendations_response.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" selection-start-line="20" selection-end-line="20" />
-          <folding>
-            <element signature="e#17#55#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -761,31 +729,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="19" lean-forward="true" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-            <marker date="1545507344779" expanded="true" signature="2951:2952" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/application/models/like_requirement_request.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1061">
           <caret line="105" selection-start-line="105" selection-end-line="105" />
-          <folding>
-            <element signature="e#17#55#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/application/models/chart_request.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="822">
-          <caret line="84" selection-start-line="84" selection-end-line="84" />
           <folding>
             <element signature="e#17#55#0" expanded="true" />
           </folding>
@@ -802,10 +749,58 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/application/models/chart_request.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="33" />
+          <folding>
+            <element signature="e#17#55#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/application/models/prioritized_recommendations_response.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+          <folding>
+            <element signature="e#17#55#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/application/swagger/swagger.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="815">
-          <caret line="319" selection-start-line="319" selection-end-line="319" />
+        <state relative-caret-position="781">
+          <caret line="317" column="8" lean-forward="true" selection-start-line="317" selection-start-column="8" selection-end-line="317" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1030">
+          <caret line="127" selection-start-line="127" selection-end-line="127" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+            <marker date="1545510393465" expanded="true" signature="2951:2952" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/yaml/constructor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="151" column="41" selection-start-line="151" selection-start-column="41" selection-end-line="151" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/application/test/test_recommendation_controller.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+          <folding>
+            <element signature="e#17#55#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

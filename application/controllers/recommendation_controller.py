@@ -124,7 +124,7 @@ def recommend_prioritized_issues(body):  # noqa: E501
                 "summary": r.summary,
                 "product": r.product,
                 "component": r.component,
-                "priority":  ("{0:.2f}".format(r.computed_priority)),
+                "priority":  float("{0:.2f}".format(r.computed_priority)),
                 "numberOfCC": len(r.cc),
                 "milestone": r.target_milestone,
                 "keywords": r.summary_tokens
