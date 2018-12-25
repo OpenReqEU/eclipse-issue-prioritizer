@@ -21,18 +21,26 @@ def _read_config():
         return yaml.load(stream)
 
 
-def app_host():
+def init_config():
     global CONFIG
-    if len(CONFIG) == 0:
-        CONFIG = _read_config()
+    CONFIG = _read_config()
+
+
+def app_host():
     return CONFIG["host"].split(":")[0]
 
 
 def app_port():
-    global CONFIG
-    if len(CONFIG) == 0:
-        CONFIG = _read_config()
     return int(CONFIG["host"].split(":")[1])
+
+
+def substitute_host_in_swagger(old_host, new_host):
+    with open(os.path.join(APP_PATH, 'swagger', 'swagger.yaml'), 'r') as f:
+        new_content = f.read()
+        new_content = new_content.replace(old_host, new_host)
+    with open(os.path.join(APP_PATH, 'swagger', 'swagger.yaml'), 'w+') as f:
+        f.write(new_content)
+    return new_content
 
 
 def is_int_or_float(str_value):
@@ -97,12 +105,6 @@ def make_dir_if_not_exists(path):
 def error(msg):
     print("ERROR: {0}".format(msg))
     sys.exit(ExitCode.FAILED)
-
-
-def is_complete_data_set(path):
-    required_files = ["Posts.xml", "Tags.xml"]
-    available_files = filter(lambda f: os.path.isfile(os.path.join(path, f)), required_files)
-    return set(available_files) == set(required_files)
 
 
 def _cache_file_paths(cached_file_name_prefix):
