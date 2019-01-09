@@ -10,6 +10,7 @@ import yaml
 
 SRC_PATH = os.path.join(os.path.realpath(os.path.dirname(__file__)), "..")
 APP_PATH = SRC_PATH
+DATA_PATH = os.path.join(APP_PATH, "data")
 LOG_PATH = os.path.join(APP_PATH, "logs")
 CACHE_PATH = os.path.join(APP_PATH, "temp", "cache")
 HAC_CACHE_PATH = os.path.join(APP_PATH, "temp", "hac")

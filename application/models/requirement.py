@@ -56,6 +56,7 @@ class Requirement(Model):
         self._target_milestone = None
         self._number_of_comments = None
         self._depends_on = None
+        self._reward = False
         self._last_updated_date = current_time
 
     @classmethod
@@ -78,6 +79,7 @@ class Requirement(Model):
         requirement.blocks = bug.blocks
         requirement.cc = bug.cc
         requirement.computed_priority = 0.0
+        requirement.reward = False
         return requirement
 
     @property
@@ -171,6 +173,10 @@ class Requirement(Model):
     @property
     def depends_on(self):
         return self._depends_on
+
+    @property
+    def reward(self):
+        return self._reward
 
     @property
     def last_updated_date(self):
@@ -267,6 +273,10 @@ class Requirement(Model):
     @depends_on.setter
     def depends_on(self, depends_on):
         self._depends_on = depends_on
+
+    @reward.setter
+    def reward(self, reward):
+        self._reward = reward
 
     @last_updated_date.setter
     def last_updated_date(self, last_updated_date):

@@ -12,12 +12,19 @@ from application.services import bugzillafetcher
 from application.services import keywordextractor
 from application.util import helper
 from typing import List  # noqa: F401
+from datetime import datetime, timedelta
 import random
 import string
+import pickledb
+import os
+from flask import json
+from dateutil import parser
 
 
+db = pickledb.load(os.path.join(helper.DATA_PATH, "storage.db"), False)
 _logger = logging.getLogger(__name__)
 FILTER_CHARACTERS_AT_BEGINNING_OR_END = ['.', ',', '(', ')', '[', ']', '|', ':', ';']
+# TODO: LRU caching with expiration date and PERSIST!!!!
 CACHED_RESPONSE = {}
 CHART_URLs = {}
 CHART_REQUESTs = {}
@@ -56,6 +63,32 @@ def generate_chart_url(body):  #noga: E501
     return response
 
 
+def is_relevant_requirement(request: PrioritizedRecommendationsRequest, requirement: Requirement) -> bool:
+    dislike_unique_key = db.get("DISLIKE_{}_{}".format(request.agent_id, requirement.id))
+    result = db.get("DEFER_{}_{}".format(request.agent_id, requirement.id))
+    defer_unique_key = result[0] if result is not False else None
+    defer_interval = result[1] if result is not False else ""
+    defer_expiration_date = parser.parse(json.loads(result[2])) if result is not False else None
+    now = datetime.now()
+
+    if dislike_unique_key is not False:
+        return False
+
+    if defer_unique_key is not False and defer_expiration_date is not None and now <= defer_expiration_date:
+        return False
+
+    return True
+
+
+def reward_liked_requirement(request: PrioritizedRecommendationsRequest, requirement: Requirement):
+    like_unique_key = db.get("LIKE_{}_{}".format(request.agent_id, requirement.id))
+
+    if like_unique_key is not False:
+        requirement.reward = True
+
+    return requirement
+
+
 def recommend_prioritized_issues(body):  # noqa: E501
     """Retrieve an ordered list of recommended requirements.
 
@@ -73,8 +106,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
 
-        if request.unique_key() in CACHED_RESPONSE:
-            return CACHED_RESPONSE[request.unique_key()]
+        #if request.unique_key() in CACHED_RESPONSE:
+        #    return CACHED_RESPONSE[request.unique_key()]
 
         # compute user profile (based on keywords)
         limit_bugs = 800
@@ -91,9 +124,17 @@ def recommend_prioritized_issues(body):  # noqa: E501
         limit_bugs = 75
         new_bugs = bugzilla_fetcher.fetch_bugs(None, request.products, request.components, "NEW", limit=limit_bugs)
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
+        new_requirements = list(filter(lambda r: is_relevant_requirement(request, r), new_requirements))
+        new_requirements = list(map(lambda r: reward_liked_requirement(request, r), new_requirements))
         keyword_extractor.extract_keywords(new_requirements, enable_pos_tagging=False, enable_lemmatization=False, lang="en")
 
-        bug_comments = bugzilla_fetcher.async_fetch_comments(list(map(lambda r: r.id, new_requirements)))
+        # FIXME: fails for tests!
+        bug_comments = bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
+        """
+        bug_comments = {}
+        for r in new_requirements:
+            bug_comments[r.id] = bugzilla_fetcher.fetch_comments(r.id)
+        """
 
         for r in new_requirements:
             comments = bug_comments[r.id]
@@ -103,10 +144,12 @@ def recommend_prioritized_issues(body):  # noqa: E501
         total_sum_of_priorities = 0.0
         preferred_keywords = request.keywords
         for r in new_requirements:
+            # TODO: consider reward!!
             if version == 0:
                 r.computed_priority = compute_contentbased_maut_priority(request.assignee, user_extracted_keywords, preferred_keywords, r)
             elif version == 1:
                 r.computed_priority = compute_contentbased_priority(user_extracted_keywords, preferred_keywords, r)
+            r.computed_priority = r.computed_priority * (100 if r.reward else 1)
             #else:
             #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords, preferred_keywords, r)
             total_sum_of_priorities += r.computed_priority
@@ -143,9 +186,8 @@ def like_prioritized_issue(body):  # noqa: E501
         content = connexion.request.get_json()
         request = LikeRequirementRequest.from_dict(content)
         response = LikeRequirementResponse(False, None)
-
-        response.error = True
-        response.errorMessage = "Not yet implemented!"
+        db.set("LIKE_{}_{}".format(request.agent_id, request.id), request.unique_key())
+        db.dump()
 
     return response
 
@@ -157,9 +199,8 @@ def dislike_prioritized_issue(body):  # noqa: E501
         content = connexion.request.get_json()
         request = LikeRequirementRequest.from_dict(content)
         response = LikeRequirementResponse(False, None)
-
-        response.error = True
-        response.errorMessage = "Not yet implemented!"
+        db.set("DISLIKE_{}_{}".format(request.agent_id, request.id), request.unique_key())
+        db.dump()
 
     return response
 
@@ -171,9 +212,10 @@ def defer_prioritized_issue(body):  # noqa: E501
         content = connexion.request.get_json()
         request = DeferRequirementRequest.from_dict(content)
         response = DeferRequirementResponse(False, None)
-
-        response.error = True
-        response.errorMessage = "Not yet implemented!"
+        expiration_date = datetime.now() + timedelta(days=request.interval)
+        expiration_date = json.dumps(str(expiration_date))
+        db.set("DEFER_{}_{}".format(request.agent_id, request.id), (request.unique_key(), request.interval, expiration_date))
+        db.dump()
 
     return response
 
@@ -211,13 +253,10 @@ def compute_contentbased_maut_priority(assignee_email_address: str, keywords_of_
     keyword_occurrences = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
     keyword_occurrences_of_existing_keywords = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), filter(lambda k: k in requirement.summary_tokens, keywords_of_stakeholder)))
     assert(sum(keyword_occurrences_of_existing_keywords.values()) == sum(keyword_occurrences.values()))
-    #print(requirement.id)
-    #print(keyword_occurrences_of_existing_keywords)
     n_keyword_occurrences = sum(keyword_occurrences.values())
     n_keywords_of_stakeholder = len(keywords_of_stakeholder)
     responsibility_weight = max(float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0, 0.05)
-    is_assigned_to_me = requirement.assigned_to == assignee_email_address
-    n_assigned_to_me = 1.0 if is_assigned_to_me else 0.0
+    n_assigned_to_me = int(requirement.assigned_to == assignee_email_address)
     n_cc_recipients = len(requirement.cc)
     n_blocks = len(requirement.blocks)
     n_gerrit_changes = len(requirement.see_also) # TODO: filter only "https://git.eclipse.org/..." URLs

@@ -64,6 +64,10 @@ class DeferRequirementRequest(Model):
         """
         return util.deserialize_model(dikt, cls)
 
+    def unique_key(self):
+        return "{}_#_{}_#_{}_#_{}_#_{}_#_{}".format(self.id, self.agent_id, self.assignee, set(self.components),
+                                                    set(self.products), set(self.keywords))
+
     @property
     def id(self) -> int:
         """Gets the ID of the issue.

@@ -127,7 +127,7 @@ class BugzillaFetcher(object):
         comments = list(map(lambda d: Comment(**d), comments_data))
         return comments
 
-    def async_fetch_comments(self, bug_ids: List[int]) -> [Comment]:
+    def fetch_comments_parallelly(self, bug_ids: List[int]) -> [Comment]:
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
             "Accept": "application/json"
