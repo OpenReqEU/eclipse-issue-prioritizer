@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1fd0a581-90f0-4041-a0c8-dbd04f76ef74" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/application/data/storage.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/controllers/recommendation_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/controllers/recommendation_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/defer_requirement_request.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/defer_requirement_request.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/like_requirement_request.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/like_requirement_request.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/models/requirement.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/models/requirement.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/services/bugzillafetcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/services/bugzillafetcher.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/swagger/swagger.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/application/swagger/swagger.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/test/test_recommendation_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/test/test_recommendation_controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/util/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/application/util/helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -40,21 +30,7 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
-              <caret line="285" column="10" selection-start-line="285" selection-start-column="4" selection-end-line="285" selection-end-column="10" />
-              <folding>
-                <element signature="e#0#16#0" expanded="true" />
-                <marker date="1547071802747" expanded="true" signature="4215:4216" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -388,12 +364,12 @@
       <workItem from="1545653793709" duration="160000" />
       <workItem from="1545653990636" duration="2987000" />
       <workItem from="1546857780633" duration="238000" />
-      <workItem from="1546868795072" duration="17082000" />
+      <workItem from="1546868795072" duration="17421000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="102527000" />
+    <option name="totallyTimeSpent" value="102866000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -406,7 +382,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="2560" height="1363" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.09051037" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -842,11 +817,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/application/controllers/recommendation_controller.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="285" column="10" selection-start-line="285" selection-start-column="4" selection-end-line="285" selection-end-column="10" />
+        <state relative-caret-position="584">
+          <caret line="111" selection-start-line="111" selection-end-line="111" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
-            <marker date="1547071802747" expanded="true" signature="4215:4216" ph="..." />
+            <marker date="1547074287761" expanded="true" signature="4215:4216" ph="..." />
           </folding>
         </state>
       </provider>

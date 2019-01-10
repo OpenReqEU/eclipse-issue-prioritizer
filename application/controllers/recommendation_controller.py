@@ -106,8 +106,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
 
-        #if request.unique_key() in CACHED_RESPONSE:
-        #    return CACHED_RESPONSE[request.unique_key()]
+        if request.unique_key() in CACHED_RESPONSE:
+            return CACHED_RESPONSE[request.unique_key()]
 
         # compute user profile (based on keywords)
         limit_bugs = 800
