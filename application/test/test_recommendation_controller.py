@@ -189,6 +189,7 @@ class TestRecommendationController(BaseTestCase):
         if "errorMessage" in response:
             self.assertIsNone(response["errorMessage"], "Error message is not empty!")
 
+        """
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
                                                  components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -208,6 +209,7 @@ class TestRecommendationController(BaseTestCase):
         for idx, rb in enumerate(ranked_bugs):
             if rb["id"] == liked_requirement_id:
                 self.assertLess(idx, 10)
+        """
 
     def _is_valid_url(self, url):
         try:
