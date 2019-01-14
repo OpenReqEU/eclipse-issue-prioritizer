@@ -6,6 +6,7 @@ from typing import List  # noqa: F401
 import datetime
 from collections import namedtuple
 
+
 bug_fields = [
     'id',
     'is_open',

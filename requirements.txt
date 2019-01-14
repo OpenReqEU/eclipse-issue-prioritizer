@@ -1,5 +1,6 @@
 connexion==1.1.15
 pickleDB==0.8.1
+cachetools==3.0.0
 pyyaml==4.2b4
 python_dateutil==2.6.0
 setuptools>=21.0.0

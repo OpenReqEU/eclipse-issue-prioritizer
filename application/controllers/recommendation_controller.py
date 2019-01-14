@@ -19,15 +19,15 @@ import pickledb
 import os
 from flask import json
 from dateutil import parser
+from cachetools import TTLCache
 
 
 db = pickledb.load(os.path.join(helper.DATA_PATH, "storage.db"), False)
 _logger = logging.getLogger(__name__)
 FILTER_CHARACTERS_AT_BEGINNING_OR_END = ['.', ',', '(', ')', '[', ']', '|', ':', ';']
-# TODO: LRU caching with expiration date and PERSIST!!!!
-CACHED_RESPONSE = {}
-CHART_URLs = {}
-CHART_REQUESTs = {}
+CACHED_PRIORITIZATIONS = TTLCache(maxsize=8388608, ttl=60*60*3)  # caching for 3 hours
+CACHED_CHART_URLs = TTLCache(maxsize=1048576, ttl=60*60*3)  # caching for 3 hours
+CHART_REQUESTs = TTLCache(maxsize=8388608, ttl=60*60*3)  # caching for 3 hours
 ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER = {}
 ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER = {}
 
@@ -38,10 +38,13 @@ def generate_chart_url(body):  #noga: E501
     if connexion.request.is_json:
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
-        if request.unique_key() in CHART_URLs:
-            return ChartResponse(False, None, CHART_URLs[request.unique_key()])
 
-        #chart_key = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        if request.unique_key() in CACHED_CHART_URLs:
+            chart_url = CACHED_CHART_URLs[request.unique_key()]
+            chart_key = chart_url.split("/")[-1]
+            if chart_key in CHART_REQUESTs:
+                return ChartResponse(False, None, CACHED_CHART_URLs[request.unique_key()])
+
         chart_key = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
         chart_url = "http://{}:{}/prioritizer/chart/c/{}".format(helper.app_host(), helper.app_port(), chart_key)
 
@@ -56,7 +59,7 @@ def generate_chart_url(body):  #noga: E501
             new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
             ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = new_requirements
 
-        CHART_URLs[request.unique_key()] = chart_url
+        CACHED_CHART_URLs[request.unique_key()] = chart_url
         CHART_REQUESTs[chart_key] = request
         response = ChartResponse(False, None, chart_url)
 
@@ -106,8 +109,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
 
-        if request.unique_key() in CACHED_RESPONSE:
-            return CACHED_RESPONSE[request.unique_key()]
+        if request.unique_key() in CACHED_PRIORITIZATIONS:
+            return CACHED_PRIORITIZATIONS[request.unique_key()]
 
         # compute user profile (based on keywords)
         limit_bugs = 800
@@ -174,7 +177,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
             }]
 
         response = PrioritizedRecommendationsResponse(False, None, rankedBugs=ranked_bugs_list)
-        CACHED_RESPONSE[request.unique_key()] = response
+        import sys;print(sys.getsizeof(response))
+        CACHED_PRIORITIZATIONS[request.unique_key()] = response
 
     return response
 
