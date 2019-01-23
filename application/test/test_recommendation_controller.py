@@ -1,15 +1,17 @@
 # coding: utf-8
 
-from __future__ import absolute_import
+import os
+from application.util import helper
 from flask import json
 from urllib.parse import urlparse
 from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest
 from application.models.like_requirement_request import LikeRequirementRequest
+from application.models.delete_profile_request import DeleteProfileRequest
 from application.models.chart_request import ChartRequest
-from application.util import helper
 from application.test import BaseTestCase
 from bs4 import BeautifulSoup
 import json as js
+import pickledb
 
 
 class TestRecommendationController(BaseTestCase):
@@ -216,10 +218,33 @@ class TestRecommendationController(BaseTestCase):
                 self.assertLess(idx, 10)
         """
 
-    ## TODO:
-    ## 2) Test für User Profile löschen schreiben!!
+    #############################################################
+    #
+    # TODO: write tests for DISLIKE and DEFER requirements!!
+    #
+    #############################################################
+
+    def test_delete_user_profile(self):
+        body = DeleteProfileRequest(agent_id=self.agent_id)
+        response = self.client.open(
+            "/prioritizer/profile/delete",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        db = pickledb.load(os.path.join(helper.DATA_PATH, "storage.db"), False)
+        all_keys = db.getall()
+        remaining_keys_containing_agent_id = list(filter(lambda k: self.agent_id in k, all_keys))
+        self.assertEqual(len(remaining_keys_containing_agent_id), 0, "No or not all keys were deleted!")
+        return response
 
     def _is_valid_url(self, url):
+        """
         try:
             result = urlparse(url)
             self.assertIn(result.scheme, {"http", "https"}, "URL {} is not of scheme http/https".format(url))
@@ -228,12 +253,19 @@ class TestRecommendationController(BaseTestCase):
             self.assertEqual(result.query, "", "URL {} has empty query".format(url))
             self.assertEqual(result.hostname, helper.app_host(), "URL {} contains wrong host.".format(url, helper.app_host()))
             self.assertRegex(result.path, r'/prioritizer/chart/c/([a-zA-Z0-9]{16})',
-                             "Path of URL {} does not conform to pattern".format(url, "/prioritizer/chart/c/([a-zA-Z0-9]{16})"))
+                             "Path of URL {} does not conform to the pattern {}".format(url, "/prioritizer/chart/c/([a-zA-Z0-9]{16})"))
             return all([result.scheme, result.netloc, result.path])
         except:
             return False
+        """
+        self.assertRegex(url, r'/prioritizer/chart/c/([a-zA-Z0-9]{16})',
+                         "Path of URL {} does not conform to the pattern {}".format(url, "/prioritizer/chart/c/([a-zA-Z0-9]{16})"))
+        return True
 
 
 if __name__ == "__main__":
+    db_path = os.path.join(helper.DATA_PATH, "storage.db")
+    if os.path.exists(db_path):
+        os.remove(db_path)
     import unittest
     unittest.main()
