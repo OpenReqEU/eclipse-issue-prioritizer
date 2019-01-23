@@ -40,6 +40,7 @@ class Requirement(Model):
         self._status = status
         self._creator = creator
         self._summary = summary
+        self._new_summary = summary
         self._summary_tokens = []
         self._platform = platform
         self._product = product
@@ -109,6 +110,10 @@ class Requirement(Model):
     @property
     def summary(self):
         return self._summary
+
+    @property
+    def new_summary(self):
+        return self._new_summary
 
     @property
     def summary_tokens(self):
@@ -209,6 +214,10 @@ class Requirement(Model):
     @summary.setter
     def summary(self, summary):
         self._summary = summary
+
+    @new_summary.setter
+    def new_summary(self, new_summary):
+        self._new_summary = new_summary
 
     @summary_tokens.setter
     def summary_tokens(self, summary_tokens):

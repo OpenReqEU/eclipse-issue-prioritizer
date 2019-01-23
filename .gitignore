@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+bugs.dat
+storage.db
+evaluation.py
+workspace.xml

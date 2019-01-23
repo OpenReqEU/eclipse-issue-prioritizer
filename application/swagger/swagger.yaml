@@ -10,7 +10,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "129.27.22.49:9002"
+host: "localhost:9002"
 basePath: "/"
 tags:
 - name: "recommend"
@@ -158,6 +158,34 @@ paths:
         405:
           description: "Invalid input"
       x-swagger-router-controller: "application.controllers.recommendation_controller"
+  /prioritizer/profile/delete:
+    post:
+      tags:
+      - "Recommender"
+      summary: "Delete a user's profile."
+      description: ""
+      operationId: "delete_profile"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Request object"
+        required: true
+        schema:
+          $ref: "#/definitions/DeleteProfileRequest"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/DeleteProfileResponse"
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "application.controllers.recommendation_controller"
 definitions:
   PrioritizedRecommendationsRequest:
     type: "object"
@@ -271,6 +299,13 @@ definitions:
       - components
       - products
       - keywords
+  DeleteProfileRequest:
+    type: "object"
+    properties:
+      agentID:
+        type: "string"
+    required:
+      - agentID
   PrioritizedRecommendationsResponse:
     type: "object"
     properties:
@@ -327,6 +362,15 @@ definitions:
     xml:
       name: "response"
   DeferRequirementResponse:
+    type: "object"
+    properties:
+      error:
+        type: "boolean"
+      errorMessage:
+        type: "string"
+    xml:
+      name: "response"
+  DeleteProfileResponse:
     type: "object"
     properties:
       error:

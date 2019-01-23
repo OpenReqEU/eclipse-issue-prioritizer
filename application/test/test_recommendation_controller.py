@@ -45,7 +45,12 @@ class TestRecommendationController(BaseTestCase):
             self.assertIsInstance(rb["milestone"], str)
             self.assertIsInstance(rb["numberOfCC"], int)
             self.assertIsInstance(rb["priority"], float)
+            # make sure that no requirements are included with priority 0.0
+            self.assertGreaterEqual(rb["priority"], 0.01)
             self.assertIsInstance(rb["summary"], str)
+
+        # make sure that requirement summaries contain uppercase letters (i.e., are not lowercased by the prioritizer)
+        self.assertTrue(any(c.isupper() for rb in ranked_bugs for c in rb["summary"]))
 
     def test_generate_chart_url(self):
         expected_components = ["UI", "IDE"]
@@ -179,7 +184,7 @@ class TestRecommendationController(BaseTestCase):
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
-            "/prioritizer/chart",
+            "/prioritizer/like",
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
@@ -210,6 +215,9 @@ class TestRecommendationController(BaseTestCase):
             if rb["id"] == liked_requirement_id:
                 self.assertLess(idx, 10)
         """
+
+    ## TODO:
+    ## 2) Test für User Profile löschen schreiben!!
 
     def _is_valid_url(self, url):
         try:
