@@ -47,7 +47,7 @@ def generate_chart_url(body):  #noga: E501
                 return ChartResponse(False, None, CACHED_CHART_URLs[request.unique_key()])
 
         chart_key = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
-        chart_url = "/prioritizer/chart/c/{}".format(chart_key)
+        chart_url = "http://{}:{}/prioritizer/chart/c/{}".format(helper.app_host(), helper.app_port(), chart_key)
 
         limit_bugs = 800
         bugzilla_fetcher = bugzillafetcher.BugzillaFetcher("https://bugs.eclipse.org/bugs/rest/bug")

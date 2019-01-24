@@ -244,7 +244,6 @@ class TestRecommendationController(BaseTestCase):
         return response
 
     def _is_valid_url(self, url):
-        """
         try:
             result = urlparse(url)
             self.assertIn(result.scheme, {"http", "https"}, "URL {} is not of scheme http/https".format(url))
@@ -261,6 +260,7 @@ class TestRecommendationController(BaseTestCase):
         self.assertRegex(url, r'/prioritizer/chart/c/([a-zA-Z0-9]{16})',
                          "Path of URL {} does not conform to the pattern {}".format(url, "/prioritizer/chart/c/([a-zA-Z0-9]{16})"))
         return True
+        """
 
 
 if __name__ == "__main__":

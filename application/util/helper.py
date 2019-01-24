@@ -36,12 +36,14 @@ def app_port():
 
 
 def substitute_host_in_swagger(old_host, new_host):
+    if ":" in new_host:
+        return  # ignore IPv6 addresses
+
     with open(os.path.join(APP_PATH, 'swagger', 'swagger.yaml'), 'r') as f:
         new_content = f.read()
         new_content = new_content.replace(old_host, new_host)
     with open(os.path.join(APP_PATH, 'swagger', 'swagger.yaml'), 'w+') as f:
         f.write(new_content)
-    return new_content
 
 
 def is_int_or_float(str_value):

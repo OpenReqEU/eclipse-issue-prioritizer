@@ -64,11 +64,11 @@ class RequirementPrioritizer(object):
                                                 enable_lemmatization=False, lang="en")
 
         # FIXME: fails for tests!
-        """
         bug_comments = self.bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
         """
         bug_comments = {}
         for r in new_requirements: bug_comments[r.id] = self.bugzilla_fetcher.fetch_comments(r.id)
+        """
 
         for r in new_requirements:
             comments = bug_comments[r.id]

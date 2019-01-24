@@ -14,12 +14,16 @@
     <div id="chart"></div>
     <script type="text/javascript">
         var occurrenceData = { {% for key, value in keyword_frequencies.items() %}"{{key}}": {{value}},{% endfor %} };
-        var keywordSum = 32;
+        var keywordSum = 0;
         var chartData = [];
         var maxNumberOfKeywords = 20;
         var numberOfKeywords = 0;
         var remainderKeywords = [];
         var remainderOccurrences = 0;
+
+        for (var key in occurrenceData) {
+            keywordSum += occurrenceData[key];
+        }
 
         function renderDonutChart(chartData) {
             var fullHeight = $(window).height() - $("h1").height();

@@ -6,7 +6,6 @@ from application.util import helper
 from application.preprocessing import filters
 from application.preprocessing import stopwords
 from application.preprocessing import pos
-from application.preprocessing import lemmatizer
 import logging
 import re
 
@@ -89,6 +88,7 @@ class KeywordExtractor(object):
         # -----------------------------------------------------------------------------------------------
         if enable_pos_tagging is True:
             _logger.warning("POS Tagging enabled!")
+            from application.preprocessing import lemmatizer
             pos.pos_tagging(requirements, lang=lang)
 
         # -----------------------------------------------------------------------------------------------

@@ -9,11 +9,11 @@ from application.services import keywordextractor
 from collections import Counter
 import urllib.request
 from application.util import helper
-from apscheduler.schedulers.background import BackgroundScheduler
+#from apscheduler.schedulers.background import BackgroundScheduler
 
 
 external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-#helper.substitute_host_in_swagger("localhost", external_ip)
+helper.substitute_host_in_swagger("localhost", external_ip)
 app = connexion.App(__name__, specification_dir='./swagger/')
 
 
@@ -21,7 +21,7 @@ def main():
     app.app.json_encoder = encoder.JSONEncoder
     app.add_api('swagger.yaml', arguments={'title': 'OpenReq Requirement Prioritization Recommendation Service'})
     helper.init_config()
-    #helper.substitute_host_in_swagger(external_ip, "localhost")
+    helper.substitute_host_in_swagger(external_ip, "localhost")
     #scheduler = BackgroundScheduler()
     #scheduler.add_job(func=cronjob_update_profiles, trigger="interval", seconds=3)
     #scheduler.start()
