@@ -1,7 +1,7 @@
 # Issue Recommendation Service for Eclipse Plugin
 
 ## Overview
-This service includes a recommendation approach for the Eclipse Plugin that finds relevant issues for developers and ranks/priorizes them according to certain criteria such as individual relevance (e.g., "is this issue assigned to the active user?", "do the keywords overlap with the keywords of the active user's profile?", etc.) and community relevance (e.g., "number of comments", "does this issue block other issues and if so, how many other issues are blocked and how relevant are these blocked issues?", etc.).
+This service includes a recommendation approach for the Eclipse Plugin that finds relevant issues for developers and ranks/prioritizes them according to certain criteria such as individual relevance (e.g., "is this issue assigned to the active user?", "do the keywords overlap with the keywords of the active user's profile?", etc.) and community relevance (e.g., "number of comments", "does this issue block other issues and if so, how many other issues are blocked and how relevant are these blocked issues?", etc.).
 This project uses the [Connexion](https://github.com/zalando/connexion) library on top of Flask.
 
 ## Requirements
