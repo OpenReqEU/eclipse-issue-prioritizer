@@ -51,7 +51,7 @@ def show_chart(chart_key):
     return render_template(
         "chart.html",
         assignee_email_address=chart_request.assignee,
-        keyword_frequencies=dict(keyword_frequencies))
+        keyword_frequencies=keyword_frequencies)
 
 
 def cronjob_update_profiles():

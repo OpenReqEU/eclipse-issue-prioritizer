@@ -13,7 +13,7 @@
 	<h1 style="margin-top:10px;margin-bottom:0;">Keywords of {{ assignee_email_address }}</h1>
     <div id="chart"></div>
     <script type="text/javascript">
-        var occurrenceData = { {% for key, value in keyword_frequencies.items() %}"{{key}}": {{value}},{% endfor %} };
+        var occurrenceData = { {% for key, value in keyword_frequencies.most_common() %}"{{key}}": {{value}},{% endfor %} };
         var keywordSum = 0;
         var chartData = [];
         var maxNumberOfKeywords = 20;
