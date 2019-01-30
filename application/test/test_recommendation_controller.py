@@ -6,12 +6,15 @@ from flask import json
 from urllib.parse import urlparse
 from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest
 from application.models.like_requirement_request import LikeRequirementRequest
+from application.models.defer_requirement_request import DeferRequirementRequest
 from application.models.delete_profile_request import DeleteProfileRequest
 from application.models.chart_request import ChartRequest
 from application.test import BaseTestCase
 from bs4 import BeautifulSoup
 import json as js
 import pickledb
+import warnings
+import time
 
 
 class TestRecommendationController(BaseTestCase):
@@ -19,6 +22,12 @@ class TestRecommendationController(BaseTestCase):
     def setUp(self):
         helper.init_config()
         self.agent_id = "9ff699c7-94de-4105-9f74-0107653daa89"
+        warnings.filterwarnings("ignore", category=ResourceWarning)
+        warnings.filterwarnings("ignore", category=UserWarning)
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+    def tearDown(self):
+        pass
 
     def test_compute_prioritization(self):
         expected_components = ["UI", "IDE"]
@@ -196,7 +205,6 @@ class TestRecommendationController(BaseTestCase):
         if "errorMessage" in response:
             self.assertIsNone(response["errorMessage"], "Error message is not empty!")
 
-        """
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
                                                  components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -213,16 +221,114 @@ class TestRecommendationController(BaseTestCase):
         self.assertIsInstance(ranked_bugs, list)
         self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
         self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertIn(liked_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
+                      "The liked requirement is not part of the ranked list any more!")
         for idx, rb in enumerate(ranked_bugs):
             if rb["id"] == liked_requirement_id:
                 self.assertLess(idx, 10)
-        """
 
-    #############################################################
-    #
-    # TODO: write tests for DISLIKE and DEFER requirements!!
-    #
-    #############################################################
+    def test_dislike_requirement(self):
+        assignee = "simon.scholz@vogella.com"
+        expected_components = ["UI", "IDE"]
+        expected_products = ["Platform"]
+        disliked_requirement_id = 229823
+        body = LikeRequirementRequest(id=disliked_requirement_id, agent_id=self.agent_id, assignee=assignee,
+                                      components=expected_components, products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/dislike",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components,
+                                                 products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
+        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertNotIn(disliked_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
+                         "The disliked requirement is still part of the ranked list!")
+
+    """
+    def test_defer_requirement(self):
+        assignee = "simon.scholz@vogella.com"
+        expected_components = ["UI", "IDE"]
+        expected_products = ["Platform"]
+        expected_interval = 0.00002314815  # 2 seconds (expressed in days)
+        deferred_requirement_id = 229823
+        body = DeferRequirementRequest(id=deferred_requirement_id, agent_id=self.agent_id, interval=expected_interval,
+                                       assignee=assignee, components=expected_components, products=expected_products,
+                                       keywords=[])
+        response = self.client.open(
+            "/prioritizer/defer",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components,
+                                                 products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
+        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertNotIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
+                         "The deferred requirement is still part of the ranked list!")
+
+        expected_interval_in_s = expected_interval * 24 * 60 * 60
+        time.sleep(expected_interval_in_s)
+
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components,
+                                                 products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
+        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
+                      "The deferred requirement has not been re-included in the ranked list!")
+    """
 
     def test_delete_user_profile(self):
         body = DeleteProfileRequest(agent_id=self.agent_id)

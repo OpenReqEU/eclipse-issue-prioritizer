@@ -85,12 +85,18 @@ def recommend_prioritized_issues(body):  # noqa: E501
         request = PrioritizedRecommendationsRequest.from_dict(content)
 
         if request.unique_key() in CACHED_PRIORITIZATIONS:
-            return CACHED_PRIORITIZATIONS[request.unique_key()]
-
-        # TODO: error handling!!
-        sorted_requirements = prioritizer.prioritize(agent_id=request.agent_id, assignee=request.assignee,
-                                                     components=request.components, products=request.products,
-                                                     preferred_keywords=request.keywords)
+            requirements, user_profile_keywords, preferred_keywords = CACHED_PRIORITIZATIONS[request.unique_key()]
+            sorted_requirements = prioritizer.prioritize(agent_id=request.agent_id, requirements=requirements,
+                                                         assignee=request.assignee,
+                                                         user_profile_keywords=user_profile_keywords,
+                                                         preferred_keywords=preferred_keywords)
+        else:
+            # TODO: error handling!!
+            result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
+                                                      components=request.components, products=request.products,
+                                                      preferred_keywords=request.keywords)
+            sorted_requirements, user_profile_keywords, preferred_keywords = result
+            CACHED_PRIORITIZATIONS[request.unique_key()] = result
 
         ranked_bugs_list = []
         for r in sorted_requirements:
@@ -106,7 +112,6 @@ def recommend_prioritized_issues(body):  # noqa: E501
             }]
 
         response = PrioritizedRecommendationsResponse(False, None, rankedBugs=ranked_bugs_list)
-        CACHED_PRIORITIZATIONS[request.unique_key()] = response
 
     return response
 
@@ -116,6 +121,7 @@ def like_prioritized_issue(body):  # noqa: E501
 
     if connexion.request.is_json:
         content = connexion.request.get_json()
+        print(content)
         request = LikeRequirementRequest.from_dict(content)
         response = LikeRequirementResponse(False, None)
         db.set("LIKE_{}_{}".format(request.agent_id, request.id), request.unique_key())
@@ -129,6 +135,7 @@ def dislike_prioritized_issue(body):  # noqa: E501
 
     if connexion.request.is_json:
         content = connexion.request.get_json()
+        print(content)
         request = LikeRequirementRequest.from_dict(content)
         response = LikeRequirementResponse(False, None)
         db.set("DISLIKE_{}_{}".format(request.agent_id, request.id), request.unique_key())
@@ -142,11 +149,13 @@ def defer_prioritized_issue(body):  # noqa: E501
 
     if connexion.request.is_json:
         content = connexion.request.get_json()
+        print(content)
         request = DeferRequirementRequest.from_dict(content)
         response = DeferRequirementResponse(False, None)
         expiration_date = datetime.now() + timedelta(days=request.interval)
         expiration_date = json.dumps(str(expiration_date))
-        db.set("DEFER_{}_{}".format(request.agent_id, request.id), (request.unique_key(), request.interval, expiration_date))
+        db.set("DEFER_{}_{}".format(request.agent_id, request.id),
+               (request.unique_key(), request.interval, expiration_date))
         db.dump()
 
     return response
@@ -157,6 +166,7 @@ def delete_profile(body):  # noqa: E501
 
     if connexion.request.is_json:
         content = connexion.request.get_json()
+        print(content)
         request = DeleteProfileRequest.from_dict(content)
         all_keys = db.getall()
         keys_to_be_removed = list(filter(lambda k: request.agent_id in k, all_keys))

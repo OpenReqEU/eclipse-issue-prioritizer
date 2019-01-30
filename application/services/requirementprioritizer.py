@@ -29,8 +29,9 @@ class RequirementPrioritizer(object):
         return requirement
 
     def _is_relevant_requirement(self, agent_id: str, requirement: Requirement) -> bool:
+        defer_db_key = "DEFER_{}_{}".format(agent_id, requirement.id)
         dislike_unique_key = self.db.get("DISLIKE_{}_{}".format(agent_id, requirement.id))
-        result = self.db.get("DEFER_{}_{}".format(agent_id, requirement.id))
+        result = self.db.get(defer_db_key)
         defer_unique_key = result[0] if result is not False else None
         defer_interval = result[1] if result is not False else ""
         defer_expiration_date = parser.parse(json.loads(result[2])) if result is not False else None
@@ -39,8 +40,12 @@ class RequirementPrioritizer(object):
         if dislike_unique_key is not False:
             return False
 
-        if defer_unique_key is not False and defer_expiration_date is not None and now <= defer_expiration_date:
-            return False
+        if defer_unique_key is not False and defer_expiration_date is not None:
+            if now <= defer_expiration_date:
+                return False
+            else:
+                self.db.rem(defer_db_key)
+                self.db.dump()
 
         return True
 
@@ -51,46 +56,50 @@ class RequirementPrioritizer(object):
         return self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
                                                        enable_lemmatization=False, lang="en")
 
-    def prioritize(self, agent_id: str, assignee: str, components: List[str], products: List[str],
-                   preferred_keywords: List[str]) -> List[Requirement]:
+    def fetch_and_prioritize(self, agent_id: str, assignee: str, components: List[str], products: List[str],
+                             preferred_keywords: List[str]) -> (List[Requirement], List[str], List[str]):
         # advanced content-based recommendation with MAUT
         user_profile_keywords = self.compute_user_profile(assignee=assignee, components=components,
                                                           products=products, limit=800)
         new_bugs = self.bugzilla_fetcher.fetch_bugs(None, products, components, "NEW", limit=75)
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
-        new_requirements = list(filter(lambda r: self._is_relevant_requirement(agent_id, r), new_requirements))
-        new_requirements = list(map(lambda r: self._reward_liked_requirement(agent_id, r), new_requirements))
-        self.keyword_extractor.extract_keywords(new_requirements, enable_pos_tagging=False,
-                                                enable_lemmatization=False, lang="en")
-
-        # FIXME: fails for tests!
         bug_comments = self.bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
-        """
-        bug_comments = {}
-        for r in new_requirements: bug_comments[r.id] = self.bugzilla_fetcher.fetch_comments(r.id)
-        """
 
         for r in new_requirements:
             comments = bug_comments[r.id]
             r.number_of_comments = len(comments)
 
+        new_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements, assignee=assignee,
+                                           user_profile_keywords=user_profile_keywords,
+                                           preferred_keywords=preferred_keywords)
+        return new_requirements, user_profile_keywords, preferred_keywords
+
+    def prioritize(self, agent_id: str, requirements: List[Requirement], assignee: str,
+                   user_profile_keywords: List[str], preferred_keywords: List[str]) -> List[Requirement]:
+        requirements = list(filter(lambda r: self._is_relevant_requirement(agent_id, r), requirements))
+        requirements = list(map(lambda r: self._reward_liked_requirement(agent_id, r), requirements))
+        self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
+                                                enable_lemmatization=False, lang="en")
+
         version = 0
         total_sum_of_priorities = 0.0
-        for r in new_requirements:
+        for r in requirements:
             if version == 0:
-                r.computed_priority = compute_contentbased_maut_priority(assignee, user_profile_keywords, preferred_keywords, r)
+                r.computed_priority = compute_contentbased_maut_priority(assignee, user_profile_keywords,
+                                                                         preferred_keywords, r)
             elif version == 1:
                 r.computed_priority = compute_contentbased_priority(user_profile_keywords, preferred_keywords, r)
-            r.computed_priority = r.computed_priority * (100 if r.reward else 1)
             #else:
-            #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords, preferred_keywords, r)
+            #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
+            #                                                         preferred_keywords, r)
+            r.computed_priority = r.computed_priority * (100 if r.reward else 1)
             total_sum_of_priorities += r.computed_priority
 
-        for r in new_requirements:
+        for r in requirements:
             r.computed_priority *= 100.0 / total_sum_of_priorities
 
-        new_requirements = filter(lambda r: r.computed_priority >= 0.01, new_requirements)
-        return sorted(new_requirements, key=lambda r: r.computed_priority, reverse=True)
+        requirements = filter(lambda r: r.computed_priority >= 0.01, requirements)
+        return sorted(requirements, key=lambda r: r.computed_priority, reverse=True)
 
 
 def compute_contentbased_priority(keywords_of_stakeholder: List[str], preferred_keywords: List[str], requirement: Requirement) -> float:

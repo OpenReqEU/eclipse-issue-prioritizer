@@ -12,7 +12,7 @@ class DeferRequirementRequest(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id: int=0, agent_id: str=None, interval: int=0, assignee: str=None,
+    def __init__(self, id: int=0, agent_id: str=None, interval: float=0, assignee: str=None,
                  components: List[str]=None, products: List[str]=None, keywords: List[str]=None):  # noqa: E501
         """DeferRequirementRequest - a model defined in Swagger
 

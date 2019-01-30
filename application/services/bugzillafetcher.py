@@ -141,6 +141,7 @@ class BugzillaFetcher(object):
         session = FuturesSession(max_workers=len(urls))
         futures = [session.get(u, headers=headers) for u in urls]
         done, incomplete = wait(futures)
+        session.close()
         #print(done)
         #print(incomplete)
 

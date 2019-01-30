@@ -10,7 +10,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "localhost:9002"
+host: "129.27.173.152:9002"
 basePath: "/"
 tags:
 - name: "recommend"
@@ -275,8 +275,10 @@ definitions:
       agentID:
         type: "string"
       interval:
-        type: "integer"
-        format: "int64"
+        type: "number"
+        format: "float"
+        minimum: 0
+        maximum: 365
       assignee:
         type: "string"
       components:
