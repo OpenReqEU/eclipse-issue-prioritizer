@@ -21,7 +21,7 @@ class TestRecommendationController(BaseTestCase):
     """RecommendationController integration tests"""
     def setUp(self):
         helper.init_config()
-        self.agent_id = "9ff699c7-94de-4105-9f74-0107653daa89"
+        self.agent_id = "9ff699c7"
         warnings.filterwarnings("ignore", category=ResourceWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -270,8 +270,8 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        expected_interval = 0.00002314815  # 2 seconds (expressed in days)
-        deferred_requirement_id = 229823
+        expected_interval = 0.00002314815*2  # 4 seconds (expressed in days)
+        deferred_requirement_id = 201589
         body = DeferRequirementRequest(id=deferred_requirement_id, agent_id=self.agent_id, interval=expected_interval,
                                        assignee=assignee, components=expected_components, products=expected_products,
                                        keywords=[])
@@ -306,7 +306,8 @@ class TestRecommendationController(BaseTestCase):
         self.assertNotIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                          "The deferred requirement is still part of the ranked list!")
 
-        expected_interval_in_s = expected_interval * 24 * 60 * 60
+        expected_interval_in_s = expected_interval * 2 * 24 * 60 * 60
+        print(expected_interval_in_s)
         time.sleep(expected_interval_in_s)
 
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,

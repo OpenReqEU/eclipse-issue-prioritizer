@@ -28,7 +28,7 @@ class DeferRequirementRequest(Model):
         self.swagger_types = {
             'id': int,
             'agent_id': str,
-            'interval': int,
+            'interval': float,
             'assignee': str,
             'components': list,
             'products': list,
@@ -111,22 +111,22 @@ class DeferRequirementRequest(Model):
         self._agent_id = agent_id
 
     @property
-    def interval(self) -> str:
+    def interval(self) -> float:
         """Gets the interval.
 
 
         :return: The interval.
-        :rtype: int
+        :rtype: float
         """
         return self._interval
 
     @interval.setter
-    def interval(self, interval: int):
+    def interval(self, interval: float):
         """Sets the interval.
 
 
-        :param ID: The interval.
-        :type ID: int
+        :param interval: The interval.
+        :type interval: float
         """
 
         self._interval = interval
