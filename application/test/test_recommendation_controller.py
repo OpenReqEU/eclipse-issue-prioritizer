@@ -188,9 +188,9 @@ class TestRecommendationController(BaseTestCase):
 
     def test_like_requirement(self):
         assignee = "simon.scholz@vogella.com"
-        expected_components = ["UI", "IDE"]
+        expected_components = ["UI"]
         expected_products = ["Platform"]
-        liked_requirement_id = 67151
+        liked_requirement_id = 542481
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -229,9 +229,9 @@ class TestRecommendationController(BaseTestCase):
 
     def test_unlike_requirement(self):
         assignee = "simon.scholz@vogella.com"
-        expected_components = ["UI", "IDE"]
+        expected_components = ["UI"]
         expected_products = ["Platform"]
-        liked_requirement_id = 67151
+        liked_requirement_id = 542481
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
