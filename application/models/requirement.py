@@ -11,9 +11,7 @@ class Requirement(Model):
     """
         #is_cc_accessible,
         #groups,
-        *creation_time,
         #qa_contact,
-        *last_change_time,
         #dupe_of,
         #cc_detail,
         #op_sys,
@@ -49,7 +47,7 @@ class Requirement(Model):
         self._priority = None
         self._computed_priority = None
         self._version = None
-        self._creation_time = current_time
+        self._creation_time = None
         self._cc = None
         self._blocks = None
         self._bugzilla_keywords = None
@@ -59,6 +57,7 @@ class Requirement(Model):
         self._depends_on = None
         self._reward = False
         self._last_updated_date = current_time
+        self._last_change_time = None
 
     @classmethod
     def from_dict(cls, dikt) -> 'Requirement':
@@ -81,6 +80,8 @@ class Requirement(Model):
         requirement.cc = bug.cc
         requirement.computed_priority = 0.0
         requirement.reward = False
+        requirement.creation_time = bug.creation_time
+        requirement.last_change_time = bug.last_change_time
         return requirement
 
     @property
@@ -187,6 +188,10 @@ class Requirement(Model):
     def last_updated_date(self):
         return self._last_updated_date
 
+    @property
+    def last_change_time(self):
+        return self._last_change_time
+
     @id.setter
     def id(self):
         return self._id
@@ -290,3 +295,8 @@ class Requirement(Model):
     @last_updated_date.setter
     def last_updated_date(self, last_updated_date):
         self._last_updated_date = last_updated_date
+
+    @last_change_time.setter
+    def last_change_time(self, last_change_time):
+        self._last_change_time = last_change_time
+

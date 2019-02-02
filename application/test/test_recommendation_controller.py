@@ -6,7 +6,6 @@ from flask import json
 from urllib.parse import urlparse
 from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest
 from application.models.like_requirement_request import LikeRequirementRequest
-from application.models.defer_requirement_request import DeferRequirementRequest
 from application.models.delete_profile_request import DeleteProfileRequest
 from application.models.chart_request import ChartRequest
 from application.test import BaseTestCase
@@ -14,7 +13,6 @@ from bs4 import BeautifulSoup
 import json as js
 import pickledb
 import warnings
-import time
 
 
 class TestRecommendationController(BaseTestCase):
@@ -47,7 +45,7 @@ class TestRecommendationController(BaseTestCase):
         ranked_bugs = response["rankedBugs"]
         self.assertIsInstance(ranked_bugs, list)
         self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
-        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         for rb in ranked_bugs:
             self.assertIn(rb["component"], expected_components, "Unexpected component: {}".format(rb["component"]))
             self.assertIn(rb["product"], expected_products, "Unexpected product: {}".format(rb["product"]))
@@ -181,7 +179,8 @@ class TestRecommendationController(BaseTestCase):
         doc = BeautifulSoup(html_content)
         h1 = doc.find_all("h1")[0]
         self.assertEqual(h1.get_text(), "Keywords of {}".format(assignee))
-        keywords_line = "{} {}".format(html_content.split("occurrenceData")[1].split("}")[0].replace("=", "")[:-2].strip(), " }")
+        keywords_line = "{} {}".format(html_content.split("occurrenceData")[1].split("}")[0]
+                                       .replace("=", "")[:-2].strip(), " }")
         keywords = js.loads(keywords_line)
         self.assertTrue(len(keywords) > 0)
         self.assertTrue(all(map(lambda t: isinstance(t[0], str), keywords.items())))
@@ -206,7 +205,8 @@ class TestRecommendationController(BaseTestCase):
             self.assertIsNone(response["errorMessage"], "Error message is not empty!")
 
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
-                                                 components=expected_components, products=expected_products, keywords=[])
+                                                 components=expected_components, products=expected_products,
+                                                 keywords=[])
         response = self.client.open(
             "/prioritizer/compute",
             method="POST",
@@ -220,12 +220,65 @@ class TestRecommendationController(BaseTestCase):
         ranked_bugs = response["rankedBugs"]
         self.assertIsInstance(ranked_bugs, list)
         self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
-        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
-        self.assertIn(liked_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
+        self.assertIn(liked_requirement_id, map(lambda r: r["id"], ranked_bugs),
                       "The liked requirement is not part of the ranked list any more!")
         for idx, rb in enumerate(ranked_bugs):
             if rb["id"] == liked_requirement_id:
                 self.assertLess(idx, 10)
+
+    def test_unlike_requirement(self):
+        assignee = "simon.scholz@vogella.com"
+        expected_components = ["UI", "IDE"]
+        expected_products = ["Platform"]
+        liked_requirement_id = 67151
+        body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
+                                      components=expected_components, products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/like",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
+                                      components=expected_components, products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/unlike",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components, products=expected_products,
+                                                 keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
+        self.assertIn(liked_requirement_id, map(lambda r: r["id"], ranked_bugs),
+                      "The liked requirement is not part of the ranked list any more!")
+        for idx, rb in enumerate(ranked_bugs):
+            if rb["id"] == liked_requirement_id:
+                self.assertGreater(idx, 10)
 
     def test_dislike_requirement(self):
         assignee = "simon.scholz@vogella.com"
@@ -261,7 +314,7 @@ class TestRecommendationController(BaseTestCase):
         ranked_bugs = response["rankedBugs"]
         self.assertIsInstance(ranked_bugs, list)
         self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
-        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         self.assertNotIn(disliked_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                          "The disliked requirement is still part of the ranked list!")
 
@@ -302,7 +355,7 @@ class TestRecommendationController(BaseTestCase):
         ranked_bugs = response["rankedBugs"]
         self.assertIsInstance(ranked_bugs, list)
         self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
-        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         self.assertNotIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                          "The deferred requirement is still part of the ranked list!")
 
@@ -326,7 +379,7 @@ class TestRecommendationController(BaseTestCase):
         ranked_bugs = response["rankedBugs"]
         self.assertIsInstance(ranked_bugs, list)
         self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
-        self.assertAlmostEqual(sum(map(lambda rb: rb["priority"], ranked_bugs)), 100.0, delta=0.1)
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         self.assertIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                       "The deferred requirement has not been re-included in the ranked list!")
     """

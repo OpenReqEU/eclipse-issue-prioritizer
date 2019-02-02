@@ -6,6 +6,7 @@ import hashlib
 import pickle
 import logging
 import yaml
+from calendar import isleap
 
 
 SRC_PATH = os.path.join(os.path.realpath(os.path.dirname(__file__)), "..")
@@ -61,6 +62,11 @@ def int_or_float_from_string(str_value):
         except ValueError:
             value = None
     return value
+
+
+def estimated_difference_in_years(start_date, end_date):
+    diff = end_date - start_date
+    return diff.days / 365
 
 
 def replace_german_umlaut(s):

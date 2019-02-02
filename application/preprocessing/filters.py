@@ -11,7 +11,7 @@ emoticons_data_file = os.path.join(helper.APP_PATH, "corpora", "emoticons", "emo
 tokens_punctuation_re = re.compile(r"(\.|!|\?|\(|\)|~)$")
 
 
-def filter_tokens(requirements, important_key_words):
+def filter_tokens(requirements, multitokens, important_key_words):
     _logger.info("Filter posts' tokens")
 
     def _is_number(current_token):
@@ -24,10 +24,17 @@ def filter_tokens(requirements, important_key_words):
             "pocketpc", "port", "line", "ajp", "ie", "oc4j", "release", "vers"
         }
 
+    def _is_multitoken_term(previous_token, current_token, multitokens):
+        adjacent_tokens = "{} {}".format(previous_token, current_token)
+        return adjacent_tokens in multitokens or adjacent_tokens in {
+            "hot fix", "quick fix", "plug in", "content assist", "code assist", "organize imports",
+            "ast rewrite", "getter setter"
+        }
+
     special_characters = "!#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
     special_characters_set = set(map(lambda c: c, special_characters))
 
-    def _filter_tokens(tokens, important_key_words):
+    def _filter_tokens(tokens, multitokens, important_key_words):
         # make sure that all tokens do not contain any whitespaces before and at the end
         tokens = map(lambda t: t.strip(), tokens)
         tokens = map(lambda t: t.strip("."), tokens)
@@ -51,7 +58,7 @@ def filter_tokens(requirements, important_key_words):
                 continue
 
             next_token = tokens[idx + 1] if (idx + 1) < len(tokens) else ""
-            if _is_version_number(t, next_token):
+            if _is_version_number(t, next_token) or _is_multitoken_term(t, next_token, multitokens):
                 new_tokens += [t + " " + next_token]
                 omit_next_token = True
                 continue
@@ -65,5 +72,5 @@ def filter_tokens(requirements, important_key_words):
         return list(filter(lambda t: len(t) > 0, tokens))
 
     for r in requirements:
-        r.summary_tokens = _filter_tokens(r.summary_tokens, important_key_words)
+        r.summary_tokens = _filter_tokens(r.summary_tokens, multitokens, important_key_words)
 

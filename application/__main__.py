@@ -37,11 +37,11 @@ def show_chart(chart_key):
     keyword_extractor = keywordextractor.KeywordExtractor()
 
     resolved_requirements = recommendation_controller.ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER[chart_request.unique_key()]
-    new_requirements = recommendation_controller.ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[chart_request.unique_key()]
-    user_extracted_keywords = keyword_extractor.extract_keywords(resolved_requirements, enable_pos_tagging=False,
-                                                                 enable_lemmatization=False, lang="en")
-    _ = keyword_extractor.extract_keywords(new_requirements, enable_pos_tagging=False,
+    #new_requirements = recommendation_controller.ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[chart_request.unique_key()]
+    _ = keyword_extractor.extract_keywords(resolved_requirements, enable_pos_tagging=False,
                                            enable_lemmatization=False, lang="en")
+    #_ = keyword_extractor.extract_keywords(new_requirements, enable_pos_tagging=False,
+    #                                       enable_lemmatization=False, lang="en")
 
     # only count those keywords that occur in NEW requirements as well as are part of the user profile (i.e., keywords of past/resolved requirements)
     #keyword_frequencies = Counter(filter(lambda t: t in user_extracted_keywords, [t for r in new_requirements for t in r.summary_tokens]))

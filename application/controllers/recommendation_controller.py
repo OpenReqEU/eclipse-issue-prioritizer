@@ -49,15 +49,17 @@ def generate_chart_url(body):  #noga: E501
         chart_key = "".join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
         chart_url = "http://{}:{}/prioritizer/chart/c/{}".format(helper.app_host(), helper.app_port(), chart_key)
 
-        limit_bugs = 800
+        limit_bugs = 0  #800
         bugzilla_fetcher = bugzillafetcher.BugzillaFetcher("https://bugs.eclipse.org/bugs/rest/bug")
         bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components, "RESOLVED", limit=limit_bugs)
         requirements = list(map(lambda b: Requirement.from_bug(b), bugs))
         ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = requirements
 
+        """
         new_bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components, "NEW", limit=limit_bugs)
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
         ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = new_requirements
+        """
 
         CACHED_CHART_URLs[request.unique_key()] = chart_url
         CHART_REQUESTs[chart_key] = request
@@ -108,7 +110,9 @@ def recommend_prioritized_issues(body):  # noqa: E501
                 "priority":  float("{0:.2f}".format(r.computed_priority)),
                 "numberOfCC": len(r.cc),
                 "milestone": r.target_milestone,
-                "keywords": r.summary_tokens
+                "keywords": r.summary_tokens,
+                "creation_time": r.creation_time,
+                "liked": db.exists("LIKE_{}_{}".format(request.agent_id, r.id))
             }]
 
         response = PrioritizedRecommendationsResponse(False, None, rankedBugs=ranked_bugs_list)
@@ -126,6 +130,22 @@ def like_prioritized_issue(body):  # noqa: E501
         response = LikeRequirementResponse(False, None)
         db.set("LIKE_{}_{}".format(request.agent_id, request.id), request.unique_key())
         db.dump()
+
+    return response
+
+
+def unlike_prioritized_issue(body):  # noqa: E501
+    response = None
+
+    if connexion.request.is_json:
+        content = connexion.request.get_json()
+        print(content)
+        request = LikeRequirementRequest.from_dict(content)
+        response = LikeRequirementResponse(False, None)
+        key = "LIKE_{}_{}".format(request.agent_id, request.id)
+        if db.exists(key):
+            db.rem(key)
+            db.dump()
 
     return response
 

@@ -58,7 +58,12 @@ class KeywordExtractor(object):
         elif lang == "en":
             self._remove_english_abbreviations(requirements)
 
+        multitokens = set()
         for r in requirements:
+            multitoken_pattern = re.search(r'^\[([a-zA-Z])+\s([a-zA-Z])+\]*', r.new_summary)
+            if multitoken_pattern is not None:
+                multitokens.add(multitoken_pattern.group().replace("[", "").replace("]", ""))
+
             # remove links
             r.new_summary = re.sub(r'^https?:\/\/.*[\r\n]*', "", r.new_summary, flags=re.MULTILINE)
             r.new_summary = re.sub(r'^ftps?:\/\/.*[\r\n]*', "", r.new_summary, flags=re.MULTILINE)
@@ -73,7 +78,7 @@ class KeywordExtractor(object):
 
         #tokenizer.tokenize_requirements(requirements, important_key_words, lang=lang)
         n_tokens = sum(map(lambda r: len(list(r.summary_tokens)), requirements))
-        filters.filter_tokens(requirements, ['c'])
+        filters.filter_tokens(requirements, multitokens, ["c"])
         stopwords.remove_stopwords(requirements, lang=lang)
 
         #extracted_key_words = tokenizer.key_words_for_tokenization(all_requirement_summaries)

@@ -4,6 +4,7 @@ from application.models.requirement import Requirement
 import logging
 from application.services import bugzillafetcher
 from application.services import keywordextractor
+from application.util import helper
 from dateutil import parser
 from flask import json
 from datetime import datetime, timedelta
@@ -22,10 +23,7 @@ class RequirementPrioritizer(object):
 
     def _reward_liked_requirement(self, agent_id: str, requirement: Requirement):
         like_unique_key = self.db.get("LIKE_{}_{}".format(agent_id, requirement.id))
-
-        if like_unique_key is not False:
-            requirement.reward = True
-
+        requirement.reward = like_unique_key is not False
         return requirement
 
     def _is_relevant_requirement(self, agent_id: str, requirement: Requirement) -> bool:
@@ -49,7 +47,7 @@ class RequirementPrioritizer(object):
 
         return True
 
-    def compute_user_profile(self, assignee: str, components: List[str], products: List[str], limit: int=800) -> List[str]:
+    def compute_user_profile(self, assignee: str, components: List[str], products: List[str], limit: int=0) -> List[str]:
         # compute user profile (based on keywords)
         bugs = self.bugzilla_fetcher.fetch_bugs(assignee, products, components, "RESOLVED", limit=limit)
         requirements = list(map(lambda b: Requirement.from_bug(b), bugs))
@@ -60,11 +58,21 @@ class RequirementPrioritizer(object):
                              preferred_keywords: List[str]) -> (List[Requirement], List[str], List[str]):
         # advanced content-based recommendation with MAUT
         user_profile_keywords = self.compute_user_profile(assignee=assignee, components=components,
-                                                          products=products, limit=800)
-        new_bugs = self.bugzilla_fetcher.fetch_bugs(None, products, components, "NEW", limit=75)
+                                                          products=products, limit=0)
+        new_bugs = self.bugzilla_fetcher.fetch_bugs(None, products, components, "NEW")
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
-        bug_comments = self.bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
 
+        # since we have to deal with a large number of issues, the number of request to fetch the issues' comments
+        # must be limited -> therefore we prioritize the issues without taking the comments into account
+        # and only consider the 75 top-most issues with the highest priority. Only for these issues we fetch
+        # the comments and finally do the final prioritization where we also take into account the comments.
+        limit = 75
+        new_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements, assignee=assignee,
+                                           user_profile_keywords=user_profile_keywords,
+                                           preferred_keywords=preferred_keywords)
+        new_requirements = new_requirements[:limit]
+
+        bug_comments = self.bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
         for r in new_requirements:
             comments = bug_comments[r.id]
             r.number_of_comments = len(comments)
@@ -82,7 +90,7 @@ class RequirementPrioritizer(object):
                                                 enable_lemmatization=False, lang="en")
 
         version = 0
-        total_sum_of_priorities = 0.0
+        max_priority = 0.0
         for r in requirements:
             if version == 0:
                 r.computed_priority = compute_contentbased_maut_priority(assignee, user_profile_keywords,
@@ -93,10 +101,11 @@ class RequirementPrioritizer(object):
             #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
             #                                                         preferred_keywords, r)
             r.computed_priority = r.computed_priority * (100 if r.reward else 1)
-            total_sum_of_priorities += r.computed_priority
+            if r.computed_priority > max_priority:
+                max_priority = r.computed_priority
 
         for r in requirements:
-            r.computed_priority *= 100.0 / total_sum_of_priorities
+            r.computed_priority = max(r.computed_priority * 100.0 / max_priority, 0.1) if max_priority > 0.0 else 0.1
 
         requirements = filter(lambda r: r.computed_priority >= 0.01, requirements)
         return sorted(requirements, key=lambda r: r.computed_priority, reverse=True)
@@ -117,11 +126,14 @@ def compute_contentbased_priority(keywords_of_stakeholder: List[str], preferred_
 def compute_contentbased_maut_priority(assignee_email_address: str, keywords_of_stakeholder: List[str],
                                        preferred_keywords: List[str], requirement: Requirement) -> float:
     """
-        Assigned to me:    2.5
-        Gerrit Changes:    2.2
-        Comments:          1.9
-        CC:                1.7
-        Blocker:           1.4
+        Assigned to me:      2.5
+        Gerrit Changes:      2.2
+        Comments:            1.9
+        CC:                  1.7
+        Keywordmatch:        1.5
+        Blocker:             1.4
+        Age (creation):     -6.0
+        Age (last update):  -?.? (TODO: consider)
     """
     # FIXME: wrong preferred_keywords handling !!!
     #keyword_occurrences = dict(map(lambda k: (k, requirement.summary_tokens.count(k) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
@@ -131,18 +143,23 @@ def compute_contentbased_maut_priority(assignee_email_address: str, keywords_of_
     assert(sum(keyword_occurrences_of_existing_keywords.values()) == sum(keyword_occurrences.values()))
     n_keyword_occurrences = sum(keyword_occurrences.values())
     n_keywords_of_stakeholder = len(keywords_of_stakeholder)
-    responsibility_weight = max(float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0, 0.05)
+    responsibility_weight = float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0
+    #responsibility_weight = max(float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0, 0.05)
     n_assigned_to_me = int(requirement.assigned_to == assignee_email_address)
     n_cc_recipients = len(requirement.cc)
     n_blocks = len(requirement.blocks)
-    n_gerrit_changes = len(requirement.see_also) # TODO: filter only "https://git.eclipse.org/..." URLs
-    n_comments = requirement.number_of_comments
+    n_gerrit_changes = len(requirement.see_also)  # TODO: filter only "https://git.eclipse.org/..." URLs
+    n_comments = requirement.number_of_comments if requirement.number_of_comments is not None else 0
+    creation_date = datetime.strptime(requirement.creation_time, "%Y-%m-%dT%H:%M:%SZ")
+    age_in_years = helper.estimated_difference_in_years(creation_date, datetime.now())
 
     # TODO: this must be normalized (calculate the mean and take the difference to the mean value into account)
     #       ---> feature scaling (evaluate complete feature range for all requirements dimension-wise)
     sum_of_dimension_contributions = n_assigned_to_me * 2.5 + n_cc_recipients * 1.7 \
-                                   + n_gerrit_changes * 2.2 + n_blocks * 1.4 + n_comments * 1.9
-    return sum_of_dimension_contributions * responsibility_weight
+                                   + n_gerrit_changes * 2.2 + n_blocks * 1.4 + n_comments * 1.9 \
+                                   + responsibility_weight * 1.5 \
+                                   + age_in_years * (-6.0)
+    return max(sum_of_dimension_contributions, 0.0)
 
 
 def _keyword_weight(k, preferred_keywords):

@@ -16,7 +16,8 @@
         var occurrenceData = { {% for key, value in keyword_frequencies.most_common() %}"{{key}}": {{value}},{% endfor %} };
         var keywordSum = 0;
         var chartData = [];
-        var maxNumberOfKeywords = 20;
+        var TOP_N_KEYWORDS = 25;
+        var TOP_N_KEYWORD_FREQUENCY_SUM_THRESHOLD = 0.9;
         var numberOfKeywords = 0;
         var remainderKeywords = [];
         var remainderOccurrences = 0;
@@ -47,36 +48,58 @@
             d3.select('#chart')
                 .datum(chartData) // bind data to the div
                 .call(donut); // draw chart in div
+
+            // comment this to show percentages {
+            /*
+			$("tspan").remove();
+			$(".labelName > text").each(function () {
+				var text = $(this).text();
+				$(this).text(text.replace(":", ""));
+			});
+			*/
+			// }
         }
 
         $(document).ready(function() {
+            var keywordFrequencySum = 0.0;
             for (var key in occurrenceData) {
                 if (occurrenceData.hasOwnProperty(key)) {
                     console.log(key + " -> " + occurrenceData[key]);
 
-                    if (++numberOfKeywords >= maxNumberOfKeywords) {
+                    if (++numberOfKeywords >= TOP_N_KEYWORDS) {
                         remainderKeywords.push(key);
                         remainderOccurrences += occurrenceData[key];
                         continue;
                     }
 
+                    var keywordFrequency = occurrenceData[key] / parseFloat(keywordSum);
+                    keywordFrequencySum += keywordFrequency;
+
                     chartData.push({
-                        "Keyword": (key.length > 20) ? key.substring(0, 20) + "." : key,
-                        "Frequency": occurrenceData[key] / parseFloat(keywordSum),
+                        "Keyword": (key.length > 22) ? key.substring(0, 22) + "." : key,
+                        "Frequency": keywordFrequency,
                         "Occurrences": occurrenceData[key]
                     });
                 }
+            }
+
+            if (keywordFrequencySum < TOP_N_KEYWORD_FREQUENCY_SUM_THRESHOLD) {
+                for (var i in chartData) {
+                    var keywordFrequency = chartData[i]["Frequency"];
+                    chartData[i]["Frequency"] = keywordFrequency / keywordFrequencySum * TOP_N_KEYWORD_FREQUENCY_SUM_THRESHOLD;
+                }
+                keywordFrequencySum = TOP_N_KEYWORD_FREQUENCY_SUM_THRESHOLD;
             }
 
             if (remainderKeywords.length > 0) {
                 var representativeKeywords = (remainderKeywords.length > 3)
                     ? remainderKeywords.slice(0, 3).concat(["..."])
                     : remainderKeywords;
-                representativeKeywords = representativeKeywords.map(k => (k.length > 8) ? k.substring(0, 8) + "." : k);
+                representativeKeywords = representativeKeywords.map(k => (k.length > 9) ? k.substring(0, 9) + "." : k);
 
                 chartData.push({
                     "Keyword": representativeKeywords.join(", "),
-                    "Frequency": remainderOccurrences / parseFloat(keywordSum)
+                    "Frequency": 1.0 - keywordFrequencySum
                 });
             }
 

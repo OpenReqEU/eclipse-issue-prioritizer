@@ -72,18 +72,23 @@ class BugzillaFetcher(object):
         self._base_url = base_url
 
     def fetch_bugs(self, assignee_mail_address: str, products: List[str], components: List[str],
-                   status: str=None, limit: int=50) -> [Bug]:
-        last_change_time = datetime.datetime.now() - datetime.timedelta(days=2 * 365)
+                   status: str=None, limit: int=0) -> [Bug]:
+        last_change_time = datetime.datetime.now() - datetime.timedelta(days=4 * 365)
         last_change_time_value = last_change_time.strftime("%Y-%m-%d")
+        creation_time = datetime.datetime.now() - datetime.timedelta(days=7 * 365)
+        creation_time_value = creation_time.strftime("%Y-%m-%d")
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
             "Accept": "application/json"
         }
 
         parameters = [
-            ('last_change_time', last_change_time_value),
-            ('limit', limit)
+            ('creation_time', creation_time_value),
+            ('last_change_time', last_change_time_value)
         ]
+
+        #if limit > 0:
+        #    parameters += [('limit', limit)]
 
         if assignee_mail_address is not None:
             parameters += [('assigned_to', assignee_mail_address)]
@@ -109,8 +114,7 @@ class BugzillaFetcher(object):
                 if field not in set(new_bd.keys()):
                     new_bd[field] = None
             new_bugs_data += [new_bd]
-        bugs = list(map(lambda d: Bug(**d), new_bugs_data))
-        return bugs
+        return list(map(lambda d: Bug(**d), new_bugs_data))
 
     def fetch_comments(self, bug_id: int) -> [Comment]:
         url = "{}/{}/comment".format(self._base_url, bug_id)
