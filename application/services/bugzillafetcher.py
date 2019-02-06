@@ -73,7 +73,7 @@ class BugzillaFetcher(object):
 
     def fetch_bugs(self, assignee_mail_address: str, products: List[str], components: List[str],
                    status: str=None, limit: int=0) -> [Bug]:
-        last_change_time = datetime.datetime.now() - datetime.timedelta(days=4 * 365)
+        last_change_time = datetime.datetime.now() - datetime.timedelta(days=2 * 365)
         last_change_time_value = last_change_time.strftime("%Y-%m-%d")
         creation_time = datetime.datetime.now() - datetime.timedelta(days=7 * 365)
         creation_time_value = creation_time.strftime("%Y-%m-%d")

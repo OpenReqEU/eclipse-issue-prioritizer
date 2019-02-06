@@ -87,9 +87,10 @@ def recommend_prioritized_issues(body):  # noqa: E501
         request = PrioritizedRecommendationsRequest.from_dict(content)
 
         if request.unique_key() in CACHED_PRIORITIZATIONS:
-            requirements, user_profile_keywords, preferred_keywords = CACHED_PRIORITIZATIONS[request.unique_key()]
+            requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = CACHED_PRIORITIZATIONS[request.unique_key()]
             sorted_requirements = prioritizer.prioritize(agent_id=request.agent_id, requirements=requirements,
                                                          assignee=request.assignee,
+                                                         user_component_frequencies=user_component_frequencies,
                                                          user_profile_keywords=user_profile_keywords,
                                                          preferred_keywords=preferred_keywords)
         else:
@@ -97,17 +98,18 @@ def recommend_prioritized_issues(body):  # noqa: E501
             result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
                                                       components=request.components, products=request.products,
                                                       preferred_keywords=request.keywords)
-            sorted_requirements, user_profile_keywords, preferred_keywords = result
+            sorted_requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = result
             CACHED_PRIORITIZATIONS[request.unique_key()] = result
 
         ranked_bugs_list = []
         for r in sorted_requirements:
+            print(r.computed_priority)
             ranked_bugs_list += [{
                 "id": r.id,
                 "summary": r.summary,
                 "product": r.product,
                 "component": r.component,
-                "priority":  float("{0:.2f}".format(r.computed_priority)),
+                "priority":  int("{0:.0f}".format(r.computed_priority)),
                 "numberOfCC": len(r.cc),
                 "milestone": r.target_milestone,
                 "keywords": r.summary_tokens,

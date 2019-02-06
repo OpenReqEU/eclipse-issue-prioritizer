@@ -358,10 +358,10 @@ definitions:
             component:
               type: "string"
             priority:
-              type: "number"
-              format: "float"
-              minimum: 0
-              maximum: 1
+              type: "integer"
+              format: "int32"
+              minimum: 1
+              maximum: 100
             numberOfCC:
               type: "integer"
               format: "int32"
