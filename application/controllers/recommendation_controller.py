@@ -103,7 +103,6 @@ def recommend_prioritized_issues(body):  # noqa: E501
 
         ranked_bugs_list = []
         for r in sorted_requirements:
-            print(r.computed_priority)
             ranked_bugs_list += [{
                 "id": r.id,
                 "summary": r.summary,

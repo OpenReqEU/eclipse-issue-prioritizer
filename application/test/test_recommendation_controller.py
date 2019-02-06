@@ -53,9 +53,9 @@ class TestRecommendationController(BaseTestCase):
             self.assertIsInstance(rb["keywords"], list)
             self.assertIsInstance(rb["milestone"], str)
             self.assertIsInstance(rb["numberOfCC"], int)
-            self.assertIsInstance(rb["priority"], float)
-            # make sure that no requirements are included with priority 0.0
-            self.assertGreaterEqual(rb["priority"], 0.01)
+            self.assertIsInstance(rb["priority"], int)
+            # make sure that no requirements are included with priority 1
+            self.assertGreaterEqual(rb["priority"], 1)
             self.assertIsInstance(rb["summary"], str)
 
         # make sure that requirement summaries contain uppercase letters (i.e., are not lowercased by the prioritizer)
