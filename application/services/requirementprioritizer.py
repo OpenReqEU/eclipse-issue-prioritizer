@@ -107,7 +107,7 @@ class RequirementPrioritizer(object):
             #else:
             #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
             #                                                         preferred_keywords, r)
-            r.computed_priority = r.computed_priority * (100 if r.reward else 1)
+            r.computed_priority = r.computed_priority * (5 if r.reward else 1)
             if r.computed_priority > max_priority:
                 max_priority = r.computed_priority
 

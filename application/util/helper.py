@@ -6,7 +6,6 @@ import hashlib
 import pickle
 import logging
 import yaml
-from calendar import isleap
 
 
 SRC_PATH = os.path.join(os.path.realpath(os.path.dirname(__file__)), "..")
