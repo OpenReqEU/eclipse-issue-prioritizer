@@ -85,23 +85,32 @@ def recommend_prioritized_issues(body):  # noqa: E501
     if connexion.request.is_json:
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
+        limit = 75
+        refetch_threshold_limit = limit - 5
+        fetch = True
 
         if request.unique_key() in CACHED_PRIORITIZATIONS:
-            requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = CACHED_PRIORITIZATIONS[request.unique_key()]
+            result = CACHED_PRIORITIZATIONS[request.unique_key()]
+            requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = result
+
             sorted_requirements = prioritizer.prioritize(agent_id=request.agent_id, requirements=requirements,
                                                          assignee=request.assignee,
                                                          user_component_frequencies=user_component_frequencies,
                                                          user_profile_keywords=user_profile_keywords,
-                                                         preferred_keywords=preferred_keywords)
-        else:
+                                                         preferred_keywords=preferred_keywords,
+                                                         max_age_years=7)  # FIXME: outsource this!!!
+            fetch = len(sorted_requirements) < refetch_threshold_limit
+
+        if fetch:
             # TODO: error handling!!
             result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
                                                       components=request.components, products=request.products,
-                                                      preferred_keywords=request.keywords)
+                                                      preferred_keywords=request.keywords, limit=limit)
             sorted_requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = result
             CACHED_PRIORITIZATIONS[request.unique_key()] = result
 
         ranked_bugs_list = []
+
         for r in sorted_requirements:
             ranked_bugs_list += [{
                 "id": r.id,
