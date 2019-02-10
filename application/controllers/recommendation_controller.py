@@ -91,10 +91,13 @@ def recommend_prioritized_issues(body):  # noqa: E501
         request = PrioritizedRecommendationsRequest.from_dict(content)
         limit = 75
         refetch_threshold_limit = limit - 5
-        fetch = True
+        reserved_aids = {
+            'a1a1a1a1a': 0,
+            'b2b2b2b2b': 1
+        }
 
         version_key = "VERSION_{}".format(request.agent_id)
-        version = db.get(version_key)
+        version = db.get(version_key) if request.agent_id not in reserved_aids else reserved_aids[request.agent_id]
 
         if version is False:
             version = bernoulli.rvs(0.5)
@@ -102,6 +105,7 @@ def recommend_prioritized_issues(body):  # noqa: E501
             db.dump()
 
         app.logger.info("Prioritize: version={}; request=({})".format(version, content))
+        fetch = True
 
         if request.unique_key() in CACHED_PRIORITIZATIONS:
             result = CACHED_PRIORITIZATIONS[request.unique_key()]
