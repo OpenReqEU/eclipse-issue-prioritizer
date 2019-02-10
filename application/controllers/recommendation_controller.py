@@ -168,10 +168,15 @@ def rank_position_of_issue(requirement_id: int, agent_id: str, assignee: str, co
                            products: List[str], keywords: List[str]):
     unique_key = PrioritizedRecommendationsRequest(agent_id=agent_id, assignee=assignee, components=components,
                                                    products=products, keywords=keywords).unique_key()
+
+    if unique_key not in CACHED_PRIORITIZATIONS:
+        return None, None
+
     sorted_requirements, _, _, _ = CACHED_PRIORITIZATIONS[unique_key]
     filtered_issues = list(filter(lambda r: r.id == requirement_id, sorted_requirements))
     if len(filtered_issues) != 1:
         return None, None
+
     ranked_position = list(map(lambda r: r.id, sorted_requirements)).index(requirement_id)
     return ranked_position, filtered_issues[0].computed_priority
 
@@ -242,10 +247,7 @@ def delete_profile(body):  # noqa: E501
         content = connexion.request.get_json()
         request = DeleteProfileRequest.from_dict(content)
         version = db.get("VERSION_{}".format(request.agent_id))
-        ranked_position, priority = rank_position_of_issue(request.id, request.agent_id, request.assignee,
-                                                           request.components, request.products, request.keywords)
-        app.logger.info("Delete profile: version={}; ranked_position={}; priority={}; request=({})"
-                        .format(version, ranked_position, priority, content))
+        app.logger.info("Delete profile: version={}; request=({})".format(version, content))
         all_keys = db.getall()
         keys_to_be_removed = list(filter(lambda k: request.agent_id in k, all_keys))
         for key in keys_to_be_removed:

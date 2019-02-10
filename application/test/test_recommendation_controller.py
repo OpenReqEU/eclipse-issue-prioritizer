@@ -23,6 +23,9 @@ class TestRecommendationController(BaseTestCase):
         warnings.filterwarnings("ignore", category=ResourceWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
+        db = pickledb.load(os.path.join(helper.DATA_PATH, "storage.db"), False)
+        db.set("VERSION_{}".format(self.agent_id), 1)
+        db.dump()
 
     def tearDown(self):
         pass
