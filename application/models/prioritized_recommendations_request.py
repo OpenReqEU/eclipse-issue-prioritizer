@@ -59,7 +59,7 @@ class PrioritizedRecommendationsRequest(Model):
         return util.deserialize_model(dikt, cls)
 
     def unique_key(self):
-        return "{}_#_{}_#_{}_#_{}".format(self.assignee, set(self.components), set(self.products), set(self.keywords))
+        return "{}_#_{}_#_{}_#_{}_#_{}".format(self.agent_id, self.assignee, set(self.components), set(self.products), set(self.keywords))
 
     @property
     def agent_id(self) -> str:

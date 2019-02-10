@@ -69,7 +69,7 @@ class RequirementPrioritizer(object):
                                                                               enable_lemmatization=False, lang="en")
 
     def fetch_and_prioritize(self, agent_id: str, assignee: str, components: List[str], products: List[str],
-                             preferred_keywords: List[str], limit: int) -> (List[Requirement], List[str], List[str]):
+                             preferred_keywords: List[str], limit: int, version: int) -> (List[Requirement], List[str], List[str]):
         # advanced content-based recommendation with MAUT
         max_age_years = 7
         user_component_frequencies, user_profile_keywords = self.compute_user_profile(assignee=assignee,
@@ -88,7 +88,8 @@ class RequirementPrioritizer(object):
                                            user_component_frequencies=user_component_frequencies,
                                            user_profile_keywords=user_profile_keywords,
                                            preferred_keywords=preferred_keywords,
-                                           max_age_years=max_age_years)
+                                           max_age_years=max_age_years,
+                                           version=version)
         new_requirements = new_requirements[:limit]
 
         bug_comments = self.bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
@@ -100,12 +101,13 @@ class RequirementPrioritizer(object):
                                            user_component_frequencies=user_component_frequencies,
                                            user_profile_keywords=user_profile_keywords,
                                            preferred_keywords=preferred_keywords,
-                                           max_age_years=max_age_years)
+                                           max_age_years=max_age_years,
+                                           version=version)
         return new_requirements, user_component_frequencies, user_profile_keywords, preferred_keywords
 
     def prioritize(self, agent_id: str, requirements: List[Requirement], assignee: str,
                    user_component_frequencies: Counter, user_profile_keywords: List[str],
-                   preferred_keywords: List[str], max_age_years: int) -> List[Requirement]:
+                   preferred_keywords: List[str], max_age_years: int, version: int) -> List[Requirement]:
         requirements = list(filter(lambda r: self._is_relevant_requirement(agent_id, r), requirements))
         requirements = list(map(lambda r: self._reward_liked_requirement(agent_id, r), requirements))
         self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
@@ -118,7 +120,6 @@ class RequirementPrioritizer(object):
                                        n_gerrit_changes=median_n_gerrit_changes, n_comments=median_n_comments,
                                        max_age_years=max_age_years)
 
-        version = 0
         max_priority = 0.0
         for r in requirements:
             if version == 0:
