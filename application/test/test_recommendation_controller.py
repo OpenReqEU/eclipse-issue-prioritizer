@@ -195,7 +195,23 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI"]
         expected_products = ["Platform"]
-        liked_requirement_id = 512314
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components, products=expected_products,
+                                                 keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        liked_requirement_id = ranked_bugs[-1]["id"]
+
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -236,7 +252,22 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI"]
         expected_products = ["Platform"]
-        liked_requirement_id = 512314
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components, products=expected_products,
+                                                 keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        liked_requirement_id = ranked_bugs[-1]["id"]
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -289,7 +320,22 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        disliked_requirement_id = 500274
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components,
+                                                 products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        disliked_requirement_id = ranked_bugs[0]["id"]
         body = LikeRequirementRequest(id=disliked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -323,13 +369,27 @@ class TestRecommendationController(BaseTestCase):
         self.assertNotIn(disliked_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                          "The disliked requirement is still part of the ranked list!")
 
-    """
     def test_defer_requirement(self):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
         expected_interval = 0.00002314815*2  # 4 seconds (expressed in days)
-        deferred_requirement_id = 530450
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components,
+                                                 products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        deferred_requirement_id = ranked_bugs[0]["id"]
         body = DeferRequirementRequest(id=deferred_requirement_id, agent_id=self.agent_id, interval=expected_interval,
                                        assignee=assignee, components=expected_components, products=expected_products,
                                        keywords=[])
@@ -364,7 +424,7 @@ class TestRecommendationController(BaseTestCase):
         self.assertNotIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                          "The deferred requirement is still part of the ranked list!")
 
-        expected_interval_in_s = expected_interval * 3 * 24 * 60 * 60
+        expected_interval_in_s = expected_interval * 1.5 * 24 * 60 * 60
         time.sleep(expected_interval_in_s)
 
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
@@ -386,7 +446,6 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         self.assertIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                       "The deferred requirement has not been re-included in the ranked list!")
-    """
 
     def test_delete_user_profile(self):
         body = DeleteProfileRequest(agent_id=self.agent_id)
