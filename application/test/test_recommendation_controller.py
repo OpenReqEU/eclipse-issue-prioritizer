@@ -28,8 +28,13 @@ class TestRecommendationController(BaseTestCase):
         db.set("VERSION_{}".format(self.agent_id), 0)
         db.dump()
 
-    def tearDown(self):
-        pass
+    @classmethod
+    def setUpClass(cls):
+        super(TestRecommendationController, cls).setUpClass()
+        helper.init_config()
+        db_path = os.path.join(helper.DATA_PATH, "storage.db")
+        if os.path.exists(db_path):
+            os.remove(db_path)
 
     def test_compute_prioritization(self):
         expected_components = ["UI", "IDE"]
@@ -486,9 +491,5 @@ class TestRecommendationController(BaseTestCase):
 
 
 if __name__ == "__main__":
-    helper.init_config()
-    db_path = os.path.join(helper.DATA_PATH, "storage.db")
-    if os.path.exists(db_path):
-        os.remove(db_path)
     import unittest
     unittest.main()
