@@ -85,6 +85,7 @@ class TestRecommendationController(BaseTestCase):
         self.assertIsInstance(url, str)
         self.assertTrue(self._is_valid_url(url), "Invalid URL {}".format(url))
 
+    """
     def test_cached_chart_url(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
@@ -119,6 +120,7 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(self._is_valid_url(url), "Invalid URL {}".format(url))
         self.assertEqual(url, previous_url, "Unexpected cache miss! The current chart URL {} does not match the "
                                             "previous chart URL {} for the same request".format(url, previous_url))
+    """
 
     def test_not_cached_chart_url(self):
         expected_components = ["UI", "IDE"]
