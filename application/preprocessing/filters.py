@@ -21,14 +21,15 @@ def filter_tokens(requirements, multitokens, important_key_words):
         return _is_number(current_token) and previous_token in {
             "eclipse", "junit", "sdk", "jdk", "java", "cdt", "emf", "macos", "oaw", "wtp",
             "jst", "geronimo", "wls", "tomcat", "websphere", "ce", "version",
-            "pocketpc", "port", "line", "ajp", "ie", "oc4j", "release", "vers"
+            "pocketpc", "port", "line", "ajp", "ie", "oc4j", "release", "vers", "windows"
         }
 
     def _is_multitoken_term(previous_token, current_token, multitokens):
         adjacent_tokens = "{} {}".format(previous_token, current_token)
         return adjacent_tokens in multitokens or adjacent_tokens in {
             "hot fix", "quick fix", "plug in", "content assist", "code assist", "organize imports",
-            "ast rewrite", "getter setter"
+            "ast rewrite", "getter setter", "os x", "mac os", "operating system", "command line", "code line",
+            "lines of code"
         }
 
     special_characters = "!#$%&'()*+,-./:;<=>?@[\]^_`{|}~"

@@ -6,6 +6,7 @@ from flask import json
 from urllib.parse import urlparse
 from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest
 from application.models.like_requirement_request import LikeRequirementRequest
+from application.models.defer_requirement_request import DeferRequirementRequest
 from application.models.delete_profile_request import DeleteProfileRequest
 from application.models.chart_request import ChartRequest
 from application.test import BaseTestCase
@@ -13,6 +14,7 @@ from bs4 import BeautifulSoup
 import json as js
 import pickledb
 import warnings
+import time
 
 
 class TestRecommendationController(BaseTestCase):
@@ -24,7 +26,7 @@ class TestRecommendationController(BaseTestCase):
         warnings.filterwarnings("ignore", category=UserWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         db = pickledb.load(os.path.join(helper.DATA_PATH, "storage.db"), False)
-        db.set("VERSION_{}".format(self.agent_id), 1)
+        db.set("VERSION_{}".format(self.agent_id), 0)
         db.dump()
 
     def tearDown(self):
@@ -193,7 +195,7 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI"]
         expected_products = ["Platform"]
-        liked_requirement_id = 542481
+        liked_requirement_id = 512314
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -234,7 +236,7 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI"]
         expected_products = ["Platform"]
-        liked_requirement_id = 542481
+        liked_requirement_id = 512314
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -287,7 +289,7 @@ class TestRecommendationController(BaseTestCase):
         assignee = "simon.scholz@vogella.com"
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
-        disliked_requirement_id = 229823
+        disliked_requirement_id = 500274
         body = LikeRequirementRequest(id=disliked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
         response = self.client.open(
@@ -327,7 +329,7 @@ class TestRecommendationController(BaseTestCase):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
         expected_interval = 0.00002314815*2  # 4 seconds (expressed in days)
-        deferred_requirement_id = 201589
+        deferred_requirement_id = 530450
         body = DeferRequirementRequest(id=deferred_requirement_id, agent_id=self.agent_id, interval=expected_interval,
                                        assignee=assignee, components=expected_components, products=expected_products,
                                        keywords=[])
@@ -362,8 +364,7 @@ class TestRecommendationController(BaseTestCase):
         self.assertNotIn(deferred_requirement_id, map(lambda rb: rb["id"], ranked_bugs),
                          "The deferred requirement is still part of the ranked list!")
 
-        expected_interval_in_s = expected_interval * 2 * 24 * 60 * 60
-        print(expected_interval_in_s)
+        expected_interval_in_s = expected_interval * 3 * 24 * 60 * 60
         time.sleep(expected_interval_in_s)
 
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
