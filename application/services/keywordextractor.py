@@ -44,8 +44,8 @@ class KeywordExtractor(object):
             r.new_summary = r.new_summary.replace('i.e.', '')
             r.new_summary = r.new_summary.replace('in order to', '')
 
-    def extract_keywords(self, requirements: List[Requirement], enable_pos_tagging=False, enable_lemmatization=False,
-                         lang="en") -> List[str]:
+    def extract_keywords(self, requirements: List[Requirement], enable_pos_tagging=False,
+                         enable_lemmatization=False, lang="en") -> List[str]:
         _logger.info("Preprocessing bugs")
         assert(isinstance(requirements, list))
         if len(requirements) == 0:

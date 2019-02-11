@@ -23,6 +23,12 @@ MedianResults = collections.namedtuple("MedianResults", [
     "max_age_years"
 ])
 
+UserProfile = collections.namedtuple("UserProfile", [
+    "assignee_email_address",
+    "component_frequencies",
+    "keyword_frequencies"
+])
+
 
 class RequirementPrioritizer(object):
 
@@ -57,36 +63,36 @@ class RequirementPrioritizer(object):
 
         return True
 
-    def compute_user_profile(self, assignee: str, components: List[str], products: List[str],
-                             limit: int=0, max_age_years: int=7) -> List[str]:
+    def _compute_user_profile(self, assignee: str, components: List[str], products: List[str],
+                              limit: int=0, max_age_years: int=7) -> (Counter, Counter):
         # compute user profile (based on keywords)
         bugs = self.bugzilla_fetcher.fetch_bugs(assignee, products, components, "RESOLVED", limit=limit,
                                                 max_age_years=max_age_years)
         requirements = list(map(lambda b: Requirement.from_bug(b), bugs))
         components = list(map(lambda r: r.component, requirements))
+        self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
+                                                enable_lemmatization=False, lang="en")
         component_frequencies = Counter(components)
-        return component_frequencies, self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
-                                                                              enable_lemmatization=False, lang="en")
+        keyword_frequencies = Counter([t for r in requirements for t in r.summary_tokens])
+        return component_frequencies, keyword_frequencies
 
     def fetch_and_prioritize(self, agent_id: str, assignee: str, components: List[str], products: List[str],
-                             preferred_keywords: List[str], limit: int, version: int) -> (List[Requirement], List[str], List[str]):
+                             preferred_keywords: List[str], limit: int, max_age_years: int,
+                             version: int) -> (List[Requirement], UserProfile):
         # advanced content-based recommendation with MAUT
-        max_age_years = 7
-        user_component_frequencies, user_profile_keywords = self.compute_user_profile(assignee=assignee,
-                                                                                      components=components,
-                                                                                      products=products,
-                                                                                      limit=0,
-                                                                                      max_age_years=max_age_years)
+        component_frequencies, keyword_frequencies = self._compute_user_profile(assignee, components, products,
+                                                                                0, max_age_years)
         new_bugs = self.bugzilla_fetcher.fetch_bugs(None, products, components, "NEW", max_age_years=max_age_years)
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
+        user_profile = UserProfile(assignee_email_address=assignee, component_frequencies=component_frequencies,
+                                   keyword_frequencies=keyword_frequencies)
 
         # since we have to deal with a large number of issues, the number of request to fetch the issues' comments
         # must be limited -> therefore we prioritize the issues without taking the comments into account
         # and only consider the 75 top-most issues with the highest priority. Only for these issues we fetch
         # the comments and finally do the final prioritization where we also take into account the comments.
-        new_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements, assignee=assignee,
-                                           user_component_frequencies=user_component_frequencies,
-                                           user_profile_keywords=user_profile_keywords,
+        new_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements,
+                                           user_profile=user_profile,
                                            preferred_keywords=preferred_keywords,
                                            max_age_years=max_age_years,
                                            version=version)
@@ -97,16 +103,12 @@ class RequirementPrioritizer(object):
             comments = bug_comments[r.id]
             r.number_of_comments = len(comments)
 
-        new_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements, assignee=assignee,
-                                           user_component_frequencies=user_component_frequencies,
-                                           user_profile_keywords=user_profile_keywords,
-                                           preferred_keywords=preferred_keywords,
-                                           max_age_years=max_age_years,
-                                           version=version)
-        return new_requirements, user_component_frequencies, user_profile_keywords, preferred_keywords
+        sorted_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements,
+                                              user_profile=user_profile, preferred_keywords=preferred_keywords,
+                                              max_age_years=max_age_years, version=version)
+        return sorted_requirements, user_profile
 
-    def prioritize(self, agent_id: str, requirements: List[Requirement], assignee: str,
-                   user_component_frequencies: Counter, user_profile_keywords: List[str],
+    def prioritize(self, agent_id: str, requirements: List[Requirement], user_profile: UserProfile,
                    preferred_keywords: List[str], max_age_years: int, version: int) -> List[Requirement]:
         requirements = list(filter(lambda r: self._is_relevant_requirement(agent_id, r), requirements))
         requirements = list(map(lambda r: self._reward_liked_requirement(agent_id, r), requirements))
@@ -123,11 +125,10 @@ class RequirementPrioritizer(object):
         max_priority = 0.0
         for r in requirements:
             if version == 0:
-                r.computed_priority = compute_contentbased_maut_priority(assignee, user_component_frequencies,
-                                                                         user_profile_keywords, preferred_keywords,
-                                                                         median_results, r)
+                r.computed_priority = _compute_contentbased_maut_priority(user_profile, preferred_keywords,
+                                                                          median_results, r)
             elif version == 1:
-                r.computed_priority = compute_contentbased_priority(user_profile_keywords, preferred_keywords, r)
+                r.computed_priority = _compute_contentbased_priority(user_profile, preferred_keywords, r)
             #else:
             #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
             #                                                         preferred_keywords, r)
@@ -142,21 +143,22 @@ class RequirementPrioritizer(object):
         return sorted(requirements, key=lambda r: r.computed_priority, reverse=True)
 
 
-def compute_contentbased_priority(keywords_of_stakeholder: List[str], preferred_keywords: List[str], requirement: Requirement) -> float:
-    #keyword_occurrences = dict(map(lambda k: (k, requirement.summary_tokens.count(k) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
-    #keyword_occurrences_of_existing_keywords = dict(map(lambda k: (k, requirement.summary_tokens.count(k) * _keyword_weight(k, preferred_keywords)), filter(lambda k: k in requirement.summary_tokens, keywords_of_stakeholder)))
+def _compute_contentbased_priority(user_profile: UserProfile, preferred_keywords: List[str], requirement: Requirement) -> float:
     # FIXME: wrong preferred_keywords handling !!!
-    keyword_occurrences = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
-    keyword_occurrences_of_existing_keywords = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), filter(lambda k: k in requirement.summary_tokens, keywords_of_stakeholder)))
-    assert(sum(keyword_occurrences_of_existing_keywords.values()) == sum(keyword_occurrences.values()))
-    n_keyword_occurrences = sum(keyword_occurrences.values())
-    n_keywords_of_stakeholder = len(keywords_of_stakeholder)
-    return float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0
+    total_keyword_frequencies = sum(user_profile.keyword_frequencies.values())
+    requ_tokens = requirement.summary_tokens
+    if total_keyword_frequencies == 0 or len(requ_tokens) == 0:
+        return 0.0
+
+    keyword_contributions = 0.0
+    for (k, f) in user_profile.keyword_frequencies.items():
+        keyword_contributions += requ_tokens.count(k) * f  # * _keyword_weight(k, preferred_keywords)
+
+    return keyword_contributions / (len(requ_tokens) * total_keyword_frequencies)
 
 
-def compute_contentbased_maut_priority(assignee_email_address: str, user_component_frequencies: Counter,
-                                       keywords_of_stakeholder: List[str], preferred_keywords: List[str],
-                                       median_results: MedianResults, requirement: Requirement) -> float:
+def _compute_contentbased_maut_priority(user_profile: UserProfile, preferred_keywords: List[str],
+                                        median_results: MedianResults, requirement: Requirement) -> float:
     """
         ==================================
         Without feature scaling:
@@ -180,7 +182,7 @@ def compute_contentbased_maut_priority(assignee_email_address: str, user_compone
         Gerrit Changes:               22.0
         Comments:                     19.0
         CC:                           17.0
-        Keywordmatch:                 37.5
+        Keywordmatch:               2785.0
         Blocker:                      14.0
         Belongingness of Component:   11.5
         Age (creation):              -42.0
@@ -188,18 +190,10 @@ def compute_contentbased_maut_priority(assignee_email_address: str, user_compone
         ==================================
 
     """
-    # FIXME: wrong preferred_keywords handling !!!
-    #keyword_occurrences = dict(map(lambda k: (k, requirement.summary_tokens.count(k) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
-    #keyword_occurrences_of_existing_keywords = dict(map(lambda k: (k, requirement.summary_tokens.count(k) * _keyword_weight(k, preferred_keywords)), filter(lambda k: k in requirement.summary_tokens, keywords_of_stakeholder)))
-    keyword_occurrences = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), keywords_of_stakeholder))
-    keyword_occurrences_of_existing_keywords = dict(map(lambda k: (k, int(k in requirement.summary_tokens) * _keyword_weight(k, preferred_keywords)), filter(lambda k: k in requirement.summary_tokens, keywords_of_stakeholder)))
-    assert(sum(keyword_occurrences_of_existing_keywords.values()) == sum(keyword_occurrences.values()))
-    n_keyword_occurrences = sum(keyword_occurrences.values())
-    n_keywords_of_stakeholder = len(keywords_of_stakeholder)
-    responsibility_weight = float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0
+    keywords_contribution = _compute_contentbased_priority(user_profile, preferred_keywords, requirement)
 
     #responsibility_weight = max(float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0, 0.05)
-    n_assigned_to_me = int(requirement.assigned_to == assignee_email_address)
+    n_assigned_to_me = int(requirement.assigned_to == user_profile.assignee_email_address)
 
     n_cc_recipients = min(len(requirement.cc) / float(median_results.n_cc_recipients*2.0), 1.0)
     n_blocks = min(len(requirement.blocks) / float(median_results.n_blocks*2.0), 1.0)
@@ -237,15 +231,21 @@ def compute_contentbased_maut_priority(assignee_email_address: str, user_compone
     print("-"*80)
     """
 
-    total_component_occurrences = sum(user_component_frequencies.values())
+    total_component_occurrences = sum(user_profile.component_frequencies.values())
     if total_component_occurrences > 0:
-        component_belongingness_degree = user_component_frequencies[requirement.component] / total_component_occurrences
+        component_belongingness_degree = user_profile.component_frequencies[requirement.component] / total_component_occurrences
     else:
         component_belongingness_degree = 0.0
 
+    """
+    print(component_belongingness_degree * 11.5)
+    print(age_in_years * (-42.0))
+    print(keywords_contribution * 2_785.0)
+    print("-"*80)
+    """
     sum_of_dimension_contributions = n_assigned_to_me * 25.0 + n_cc_recipients * 17.0 \
                                    + n_gerrit_changes * 22.0 + n_blocks * 14.0 + n_comments * 19.0 \
-                                   + responsibility_weight * 37.5 \
+                                   + keywords_contribution * 2_785.0 \
                                    + component_belongingness_degree * 11.5 \
                                    + age_in_years * (-42.0)
     return max(sum_of_dimension_contributions, 0.0)

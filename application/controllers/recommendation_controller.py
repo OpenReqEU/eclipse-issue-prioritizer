@@ -92,6 +92,7 @@ def recommend_prioritized_issues(body):  # noqa: E501
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
         limit = 75
+        max_age_years = 7  # TODO: outsource this!!!
         refetch_threshold_limit = limit - 5
         reserved_aids = {
             'a1a1a1a1a': 0,
@@ -110,24 +111,19 @@ def recommend_prioritized_issues(body):  # noqa: E501
         fetch = True
 
         if request.unique_key() in CACHED_PRIORITIZATIONS:
-            result = CACHED_PRIORITIZATIONS[request.unique_key()]
-            requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = result
-
+            requirements, user_profile = CACHED_PRIORITIZATIONS[request.unique_key()]
             sorted_requirements = prioritizer.prioritize(agent_id=request.agent_id, requirements=requirements,
-                                                         assignee=request.assignee,
-                                                         user_component_frequencies=user_component_frequencies,
-                                                         user_profile_keywords=user_profile_keywords,
-                                                         preferred_keywords=preferred_keywords,
-                                                         max_age_years=7,
-                                                         version=version)  # FIXME: outsource this!!!
+                                                         user_profile=user_profile, preferred_keywords=request.keywords,
+                                                         max_age_years=max_age_years, version=version)
             fetch = len(sorted_requirements) < refetch_threshold_limit
 
         if fetch:
             # TODO: error handling!!
             result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
                                                       components=request.components, products=request.products,
-                                                      preferred_keywords=request.keywords, limit=limit, version=version)
-            sorted_requirements, user_component_frequencies, user_profile_keywords, preferred_keywords = result
+                                                      preferred_keywords=request.keywords, limit=limit,
+                                                      max_age_years=max_age_years, version=version)
+            sorted_requirements, user_profile = result
             CACHED_PRIORITIZATIONS[request.unique_key()] = result
 
         ranked_bugs_list = []
@@ -178,7 +174,7 @@ def rank_position_of_issue(requirement_id: int, agent_id: str, assignee: str, co
     if unique_key not in CACHED_PRIORITIZATIONS:
         return None, None
 
-    sorted_requirements, _, _, _ = CACHED_PRIORITIZATIONS[unique_key]
+    sorted_requirements, _ = CACHED_PRIORITIZATIONS[unique_key]
     filtered_issues = list(filter(lambda r: r.id == requirement_id, sorted_requirements))
     if len(filtered_issues) != 1:
         return None, None
