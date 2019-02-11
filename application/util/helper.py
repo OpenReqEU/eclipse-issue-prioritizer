@@ -18,8 +18,8 @@ CONFIG = {}
 
 
 def _read_config():
-    with open(os.path.join(APP_PATH, "swagger", "swagger.yaml"), "r") as stream:
-        return yaml.load(stream)
+    with open(os.path.join(APP_PATH, "swagger", "swagger.yaml"), "r") as f:
+        return yaml.load(f)
 
 
 def init_config():

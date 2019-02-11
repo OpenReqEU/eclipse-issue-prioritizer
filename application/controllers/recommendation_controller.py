@@ -55,12 +55,14 @@ def generate_chart_url(body):  #noga: E501
 
         limit_bugs = 0  #800
         bugzilla_fetcher = bugzillafetcher.BugzillaFetcher("https://bugs.eclipse.org/bugs/rest/bug")
-        bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components, "RESOLVED", limit=limit_bugs)
+        bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components,
+                                           "RESOLVED", limit=limit_bugs)
         requirements = list(map(lambda b: Requirement.from_bug(b), bugs))
         ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = requirements
 
         """
-        new_bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components, "NEW", limit=limit_bugs)
+        new_bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components,
+                                               "NEW", limit=limit_bugs)
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
         ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = new_requirements
         """

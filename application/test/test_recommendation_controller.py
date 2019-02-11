@@ -20,7 +20,6 @@ import time
 class TestRecommendationController(BaseTestCase):
     """RecommendationController integration tests"""
     def setUp(self):
-        helper.init_config()
         self.agent_id = "9ff699c7"
         warnings.filterwarnings("ignore", category=ResourceWarning)
         warnings.filterwarnings("ignore", category=UserWarning)
@@ -85,7 +84,6 @@ class TestRecommendationController(BaseTestCase):
         self.assertIsInstance(url, str)
         self.assertTrue(self._is_valid_url(url), "Invalid URL {}".format(url))
 
-    """
     def test_cached_chart_url(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
@@ -120,7 +118,6 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(self._is_valid_url(url), "Invalid URL {}".format(url))
         self.assertEqual(url, previous_url, "Unexpected cache miss! The current chart URL {} does not match the "
                                             "previous chart URL {} for the same request".format(url, previous_url))
-    """
 
     def test_not_cached_chart_url(self):
         expected_components = ["UI", "IDE"]
@@ -489,6 +486,7 @@ class TestRecommendationController(BaseTestCase):
 
 
 if __name__ == "__main__":
+    helper.init_config()
     db_path = os.path.join(helper.DATA_PATH, "storage.db")
     if os.path.exists(db_path):
         os.remove(db_path)
