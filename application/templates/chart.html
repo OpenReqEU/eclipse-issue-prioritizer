@@ -8,10 +8,95 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
     <script src="{{ url_for('static', filename='index.js') }}"></script>
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <style>
+        #or-title {
+            margin-top: 10px;
+            margin-bottom: 0;
+            font-size: 22px;
+        }
+
+        #or-subtitle {
+            font-size: 16px;
+            font-weight: 300;
+            color: #999999;
+        }
+
+        #or-remaining-keywords-list {
+            display:none;
+        }
+
+        #or-keywords-table {
+          font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+          font-size: 14px;
+        }
+
+        #or-keywords-table td, #or-keywords-table th {
+          border: 1px solid #ddd;
+          padding: 6px;
+        }
+
+        #or-keywords-table tr:nth-child(even){background-color: #f2f2f2;}
+        #or-keywords-table tr th:first-child, #or-keywords-table tr td:first-child { width: 60%; word-wrap: break-word; }
+        #or-keywords-table tr th:last-child, #or-keywords-table tr td:last-child { text-align: center; }
+        #or-keywords-table tr:hover { background-color: #ddd; }
+
+        #or-keywords-table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #4CAF50;
+          color: white;
+        }
+
+        div.close-modal {
+            width: 70px;
+            height: 70px;
+            margin: 22px 18px 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            text-align: left;
+            z-index: 1;
+            display: none;
+        }
+
+        ::-webkit-scrollbar {
+            -webkit-appearance: none;
+            width: 7px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            border-radius: 4px;
+            background-color: rgba(0,0,0,.5);
+            box-shadow: 0 0 1px rgba(255,255,255,.5);
+        }
+    </style>
 </head>
 <body>
-	<h1 style="margin-top:10px;margin-bottom:0;">Keywords of {{ assignee_email_address }}</h1>
+    <div class="close-modal">
+      <a id="close-modal-button" href="#" title="Close">
+          <img class="close-button" src="{{ url_for('static', filename='close.svg') }}" width="40" height="40" />
+      </a>
+    </div>
+	<h1 id="or-title">Keywords of {{ assignee_email_address }}</h1>
     <div id="chart"></div>
+    <div id="or-remaining-keywords-list">
+        <h2 id="or-subtitle">Remaining Keywords</h2>
+        <div id="or-keywords-table-container">
+            <table id="or-keywords-table">
+                <thead>
+                    <tr>
+                        <th>Keyword</th>
+                        <th>Occurences</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
     <script type="text/javascript">
         var occurrenceData = { {% for key, value in keyword_frequencies.most_common() %}"{{key}}": {{value}},{% endfor %} };
         var keywordSum = 0;
@@ -26,8 +111,9 @@
             keywordSum += occurrenceData[key];
         }
 
-        function renderDonutChart(chartData) {
-            var fullHeight = $(window).height() - $("h1").height();
+        function renderKeywordsListAndDonutChart(chartData) {
+            var fullHeight = $(window).height() - $("#or-title").height();
+            $("#or-keywords-table-container").height(fullHeight - 0.3 * fullHeight).css("overflow-y", "auto");
             fullHeight -= 0.2 * fullHeight;
 
             var fullWidth = Math.floor(1.6579 * fullHeight);
@@ -60,6 +146,20 @@
 			// }
         }
 
+        function lastSliceClickEvent() {
+            $(".close-modal").show();
+            $("#chart").hide();
+            $("#or-remaining-keywords-list").show();
+            return false;
+        }
+
+        function closeModalClickEvent() {
+            $(".close-modal").hide();
+            $("#or-remaining-keywords-list").hide();
+            $("#chart").show();
+            return false;
+        }
+
         $(document).ready(function() {
             var keywordFrequencySum = 0.0;
             for (var key in occurrenceData) {
@@ -67,7 +167,7 @@
                     console.log(key + " -> " + occurrenceData[key]);
 
                     if (++numberOfKeywords >= TOP_N_KEYWORDS) {
-                        remainderKeywords.push(key);
+                        remainderKeywords.push({ "keyword": key, "occurrences": occurrenceData[key] });
                         remainderOccurrences += occurrenceData[key];
                         continue;
                     }
@@ -93,21 +193,39 @@
 
             if (remainderKeywords.length > 0) {
                 var representativeKeywords = (remainderKeywords.length > 3)
-                    ? remainderKeywords.slice(0, 3).concat(["..."])
-                    : remainderKeywords;
+                    ? remainderKeywords.slice(0, 2).map(d => d["keyword"]).concat(["..."])
+                    : remainderKeywords.map(d => d["keyword"]);
                 representativeKeywords = representativeKeywords.map(k => (k.length > 9) ? k.substring(0, 9) + "." : k);
 
                 chartData.push({
                     "Keyword": representativeKeywords.join(", "),
                     "Frequency": 1.0 - keywordFrequencySum
                 });
+
+                for (var i in remainderKeywords) {
+                    var tr = $("<tr></tr>");
+                    tr.append($("<td></td>").text(remainderKeywords[i]["keyword"]));
+                    tr.append($("<td></td>").text(remainderKeywords[i]["occurrences"]));
+                    $("#or-keywords-table > tbody").append(tr);
+                }
             }
 
-            renderDonutChart(chartData);
+            renderKeywordsListAndDonutChart(chartData);
+
+            if (remainderKeywords.length > 0) {
+                $(".slices > path:last").unbind("click");
+                $(".slices > path:last").on("click", lastSliceClickEvent);
+                $(".slices > path:last").css("cursor", "pointer");
+                $("#close-modal-button").unbind("click");
+                $("#close-modal-button").on("click", closeModalClickEvent);
+            }
 
             window.addEventListener('resize', function (event) {
                 $("#chart").children().remove();
-                renderDonutChart(chartData);
+                renderKeywordsListAndDonutChart(chartData);
+                $(".slices > path:last").unbind("click");
+                $(".slices > path:last").on("click", lastSliceClickEvent);
+                $(".slices > path:last").css("cursor", "pointer");
             });
         });
     </script>
