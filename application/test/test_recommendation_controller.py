@@ -214,7 +214,7 @@ class TestRecommendationController(BaseTestCase):
             self.assertIsNone(response["errorMessage"], "Error message is not empty!")
         ranked_bugs = response["rankedBugs"]
         self.assertIsInstance(ranked_bugs, list)
-        liked_requirement_id = ranked_bugs[-1]["id"]
+        liked_requirement_id = ranked_bugs[10]["id"]
 
         body = LikeRequirementRequest(id=liked_requirement_id, agent_id=self.agent_id, assignee=assignee,
                                       components=expected_components, products=expected_products, keywords=[])
