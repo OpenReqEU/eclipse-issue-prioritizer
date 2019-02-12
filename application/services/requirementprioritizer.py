@@ -118,17 +118,20 @@ class RequirementPrioritizer(object):
         median_n_blocks = max(np.median(list(map(lambda r: len(r.blocks), requirements))), 1e-2)  # TODO: filter only "https://git.eclipse.org/..." URLs
         median_n_gerrit_changes = max(np.median(list(map(lambda r: len(r.see_also), requirements))), 1e-2)
         median_n_comments = max(np.median(list(map(lambda r: r.number_of_comments or 0.0, requirements))), 1e-2)
+        keyword_contributions = list(map(lambda r: _compute_contentbased_priority(user_profile, preferred_keywords, r), requirements))
+        max_keyword_contributions, min_keyword_contributions = max(keyword_contributions), min(keyword_contributions)
+        keyword_contributions = list(map(lambda v: (v - min_keyword_contributions)/(max_keyword_contributions - min_keyword_contributions), keyword_contributions))
         median_results = MedianResults(n_cc_recipients=median_n_cc_recipients, n_blocks=median_n_blocks,
                                        n_gerrit_changes=median_n_gerrit_changes, n_comments=median_n_comments,
                                        max_age_years=max_age_years)
 
         max_priority = 0.0
-        for r in requirements:
+        for idx, r in enumerate(requirements):
             if version == 0:
-                r.computed_priority = _compute_contentbased_maut_priority(user_profile, preferred_keywords,
-                                                                          median_results, r)
+                r.computed_priority = _compute_contentbased_maut_priority(keyword_contributions[idx], user_profile,
+                                                                          preferred_keywords, median_results, r)
             elif version == 1:
-                r.computed_priority = _compute_contentbased_priority(user_profile, preferred_keywords, r)
+                r.computed_priority = keyword_contributions[idx]
             #else:
             #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
             #                                                         preferred_keywords, r)
@@ -157,8 +160,9 @@ def _compute_contentbased_priority(user_profile: UserProfile, preferred_keywords
     return keyword_contributions / (len(requ_tokens) * total_keyword_frequencies)
 
 
-def _compute_contentbased_maut_priority(user_profile: UserProfile, preferred_keywords: List[str],
-                                        median_results: MedianResults, requirement: Requirement) -> float:
+def _compute_contentbased_maut_priority(keywords_contribution: float, user_profile: UserProfile,
+                                        preferred_keywords: List[str], median_results: MedianResults,
+                                        requirement: Requirement) -> float:
     """
         ==================================
         Without feature scaling:
@@ -182,7 +186,7 @@ def _compute_contentbased_maut_priority(user_profile: UserProfile, preferred_key
         Gerrit Changes:               22.0
         Comments:                     19.0
         CC:                           17.0
-        Keywordmatch:               2785.0
+        Keywordmatch:                 15.0
         Blocker:                      14.0
         Belongingness of Component:   11.5
         Age (creation):              -42.0
@@ -190,9 +194,6 @@ def _compute_contentbased_maut_priority(user_profile: UserProfile, preferred_key
         ==================================
 
     """
-    keywords_contribution = _compute_contentbased_priority(user_profile, preferred_keywords, requirement)
-
-    #responsibility_weight = max(float(n_keyword_occurrences) / float(n_keywords_of_stakeholder) if n_keywords_of_stakeholder > 0 else 0.0, 0.05)
     n_assigned_to_me = int(requirement.assigned_to == user_profile.assignee_email_address)
 
     n_cc_recipients = min(len(requirement.cc) / float(median_results.n_cc_recipients*2.0), 1.0)
@@ -240,12 +241,12 @@ def _compute_contentbased_maut_priority(user_profile: UserProfile, preferred_key
     """
     print(component_belongingness_degree * 11.5)
     print(age_in_years * (-42.0))
-    print(keywords_contribution * 2_785.0)
+    print(keywords_contribution * 15.0)
     print("-"*80)
     """
     sum_of_dimension_contributions = n_assigned_to_me * 25.0 + n_cc_recipients * 17.0 \
                                    + n_gerrit_changes * 22.0 + n_blocks * 14.0 + n_comments * 19.0 \
-                                   + keywords_contribution * 2_785.0 \
+                                   + keywords_contribution * 15.0 \
                                    + component_belongingness_degree * 11.5 \
                                    + age_in_years * (-42.0)
     return max(sum_of_dimension_contributions, 0.0)
