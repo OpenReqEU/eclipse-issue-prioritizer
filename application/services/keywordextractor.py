@@ -68,11 +68,6 @@ class KeywordExtractor(object):
             r.new_summary = re.sub(r'^https?:\/\/.*[\r\n]*', "", r.new_summary, flags=re.MULTILINE)
             r.new_summary = re.sub(r'^ftps?:\/\/.*[\r\n]*', "", r.new_summary, flags=re.MULTILINE)
 
-            # replace synonyms
-            for old_word, new_word in [("deletion", "delete")]:
-                r.new_summary = r.new_summary.replace(old_word, new_word)
-                pass
-
             # remove special characters
             for special_character in {"!", ",", "?", ":", ";", "&", "(", ")", "_", "[", "]", "{", "}", "'",
                                       "\"", "“", "'s", "=>", "->", "->>", "<<->>", "%20", "==", "/", "<", ">", "\\"}:
@@ -84,7 +79,24 @@ class KeywordExtractor(object):
         #tokenizer.tokenize_requirements(requirements, important_key_words, lang=lang)
         n_tokens = sum(map(lambda r: len(list(r.summary_tokens)), requirements))
         filters.filter_tokens(requirements, multitokens, ["c"])
-        stopwords.remove_stopwords(requirements, lang=lang)
+
+        # replace synonyms
+        for r in requirements:
+            for old_word, new_word in [("deletion", "delete"), ("test", "tests"), ("method", "methods"),
+                                       ("styling", "styles"), ("style", "styles"), ("checking", "checks"),
+                                       ("check", "checks"), ("configurations", "configuration"), ("task", "tasks"),
+                                       ("assertion", "assert"), ("dialog", "dialogs"), ("fixes", "fix"),
+                                       ("building", "builds"), ("build", "builds"), ("persist", "persistence"),
+                                       ("persists", "persistence"), ("persisting", "persistence"),
+                                       ("persisted", "persistence"), ("clazz", "class"), ("classes", "class"),
+                                       ("event", "events"), ("script", "scripts"), ("adding", "add"), ("ids", "id"),
+                                       ("log", "logs"), ("logging", "logs"), ("calculation", "calculate"),
+                                       ("reading", "read"), ("reads", "read"), ("constant", "constants"),
+                                       ("dependency", "dependencies"), ("todo", "todos"), ("user interface", "ui"),
+                                       ("java7", "java 7"), ("java8", "java 8")]:
+                r.summary_tokens = list(map(lambda t: new_word if t == old_word else t, r.summary_tokens))
+
+        stopwords.remove_stopwords(requirements)
 
         #extracted_key_words = tokenizer.key_words_for_tokenization(all_requirement_summaries)
         extracted_unique_key_words = list(set([t for r in requirements for t in r.summary_tokens]))

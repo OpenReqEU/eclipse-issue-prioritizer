@@ -29,7 +29,7 @@ def filter_tokens(requirements, multitokens, important_key_words):
         return adjacent_tokens in multitokens or adjacent_tokens in {
             "hot fix", "quick fix", "plug in", "content assist", "code assist", "organize imports",
             "ast rewrite", "getter setter", "os x", "mac os", "operating system", "command line", "code line",
-            "lines of code"
+            "dark theme", "user interface"
         }
 
     special_characters = "!#$%&'()*+,-./:;<=>?@[\]^_`{|}~"

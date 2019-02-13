@@ -13,7 +13,7 @@ nltk.data.path = [os.path.join(helper.APP_PATH, "corpora", "nltk_data")]
 
 def remove_stopwords(requirements, lang="en"):
     _logger.info("Removing stop-words from requirement' tokens")
-    stop_words_file_path = os.path.join(helper.APP_PATH, 'corpora', 'stopwords_' + lang)
+    stop_words_file_path = os.path.join(helper.DATA_PATH, 'stopwords')
     data_set_stop_words = set()
     if os.path.isfile(stop_words_file_path):
         with open(stop_words_file_path, 'r') as f:
