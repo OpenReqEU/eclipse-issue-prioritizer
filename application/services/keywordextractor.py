@@ -68,6 +68,11 @@ class KeywordExtractor(object):
             r.new_summary = re.sub(r'^https?:\/\/.*[\r\n]*', "", r.new_summary, flags=re.MULTILINE)
             r.new_summary = re.sub(r'^ftps?:\/\/.*[\r\n]*', "", r.new_summary, flags=re.MULTILINE)
 
+            # replace synonyms
+            for old_word, new_word in [("deletion", "delete")]:
+                r.new_summary = r.new_summary.replace(old_word, new_word)
+                pass
+
             # remove special characters
             for special_character in {"!", ",", "?", ":", ";", "&", "(", ")", "_", "[", "]", "{", "}", "'",
                                       "\"", "“", "'s", "=>", "->", "->>", "<<->>", "%20", "==", "/", "<", ">", "\\"}:
