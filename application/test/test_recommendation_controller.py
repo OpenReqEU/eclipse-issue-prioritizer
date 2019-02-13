@@ -74,7 +74,8 @@ class TestRecommendationController(BaseTestCase):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
         body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee="max.mustermann@example.com",
-                                                 components=expected_components, products=expected_products, keywords=[])
+                                                 components=expected_components, products=expected_products,
+                                                 keywords=[])
         response = self.client.open(
             "/prioritizer/compute",
             method="POST",
@@ -282,8 +283,12 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         self.assertIn(liked_requirement_id, map(lambda r: r["id"], ranked_bugs),
                       "The liked requirement is not part of the ranked list any more!")
-        #for idx, rb in enumerate(ranked_bugs):
-        #    if rb["id"] == liked_requirement_id:
+        # FIXME: fix this!
+        for idx, rb in enumerate(ranked_bugs):
+            if rb["id"] == liked_requirement_id:
+                self.assertTrue(rb["liked"], "This issue is not marked as being liked by the user.")
+            else:
+                self.assertFalse(rb["liked"], "This issue is marked as being liked by the user but should not.")
         #        self.assertLess(idx, 50)
 
     def test_unlike_requirement(self):

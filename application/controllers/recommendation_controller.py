@@ -107,26 +107,31 @@ def recommend_prioritized_issues(body):  # noqa: E501
             db.set(version_key, version)
             db.dump()
 
-        app.logger.info("Prioritize: version={}; request=({})".format(version, content))
         fetch = True
+        is_version_redirect = False
 
         if request.unique_key() in CACHED_PRIORITIZATIONS:
-            requirements, user_profile = CACHED_PRIORITIZATIONS[request.unique_key()]
-            sorted_requirements = prioritizer.prioritize(agent_id=request.agent_id, requirements=requirements,
-                                                         user_profile=user_profile, preferred_keywords=request.keywords,
-                                                         max_age_years=max_age_years, version=version)
+            requirements, user_profile, _ = CACHED_PRIORITIZATIONS[request.unique_key()]
+            sorted_requirements, is_version_redirect = prioritizer.prioritize(
+                agent_id=request.agent_id, requirements=requirements,
+                user_profile=user_profile, preferred_keywords=request.keywords,
+                max_age_years=max_age_years, version=version)
             fetch = len(sorted_requirements) < refetch_threshold_limit
 
         if fetch:
-            # TODO: error handling!!
-            result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
-                                                      components=request.components, products=request.products,
-                                                      preferred_keywords=request.keywords, limit=limit,
-                                                      max_age_years=max_age_years, version=version)
-            sorted_requirements, user_profile = result
-            CACHED_PRIORITIZATIONS[request.unique_key()] = result
+            try:
+                result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
+                                                          components=request.components, products=request.products,
+                                                          preferred_keywords=request.keywords, limit=limit,
+                                                          max_age_years=max_age_years, version=version)
+                sorted_requirements, user_profile, is_version_redirect = result
+                CACHED_PRIORITIZATIONS[request.unique_key()] = result
+            except:
+                return PrioritizedRecommendationsResponse(True, "An error occurred! Please try again later.")
 
         ranked_bugs_list = []
+        app.logger.info("Prioritize: version={}; version_redirect={}; request=({})".format(version, is_version_redirect,
+                                                                                           content))
 
         for r in sorted_requirements:
             ranked_bugs_list += [{
@@ -174,7 +179,7 @@ def rank_position_of_issue(requirement_id: int, agent_id: str, assignee: str, co
     if unique_key not in CACHED_PRIORITIZATIONS:
         return None, None
 
-    sorted_requirements, _ = CACHED_PRIORITIZATIONS[unique_key]
+    sorted_requirements, _, _ = CACHED_PRIORITIZATIONS[unique_key]
     filtered_issues = list(filter(lambda r: r.id == requirement_id, sorted_requirements))
     if len(filtered_issues) != 1:
         return None, None

@@ -104,7 +104,6 @@ class BugzillaFetcher(object):
         r = requests.get(url, headers=headers)
         r.raise_for_status()
         print(r.headers)
-        print(r.status_code == requests.codes.ok)
         parsed_data = r.json()
         bugs_data = parsed_data["bugs"]
         new_bugs_data = []

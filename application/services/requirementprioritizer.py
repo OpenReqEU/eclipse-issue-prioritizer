@@ -91,11 +91,10 @@ class RequirementPrioritizer(object):
         # must be limited -> therefore we prioritize the issues without taking the comments into account
         # and only consider the 75 top-most issues with the highest priority. Only for these issues we fetch
         # the comments and finally do the final prioritization where we also take into account the comments.
-        new_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements,
-                                           user_profile=user_profile,
-                                           preferred_keywords=preferred_keywords,
-                                           max_age_years=max_age_years,
-                                           version=version)
+        new_requirements, is_version_redirect = self.prioritize(agent_id=agent_id, requirements=new_requirements,
+                                                                user_profile=user_profile,
+                                                                preferred_keywords=preferred_keywords,
+                                                                max_age_years=max_age_years, version=version)
         new_requirements = new_requirements[:limit]
 
         bug_comments = self.bugzilla_fetcher.fetch_comments_parallelly(list(map(lambda r: r.id, new_requirements)))
@@ -103,10 +102,11 @@ class RequirementPrioritizer(object):
             comments = bug_comments[r.id]
             r.number_of_comments = len(comments)
 
-        sorted_requirements = self.prioritize(agent_id=agent_id, requirements=new_requirements,
-                                              user_profile=user_profile, preferred_keywords=preferred_keywords,
-                                              max_age_years=max_age_years, version=version)
-        return sorted_requirements, user_profile
+        sorted_requirements, temp = self.prioritize(agent_id=agent_id, requirements=new_requirements,
+                                                    user_profile=user_profile, preferred_keywords=preferred_keywords,
+                                                    max_age_years=max_age_years, version=version)
+        assert(temp == is_version_redirect)
+        return sorted_requirements, user_profile, is_version_redirect
 
     def prioritize(self, agent_id: str, requirements: List[Requirement], user_profile: UserProfile,
                    preferred_keywords: List[str], max_age_years: int, version: int) -> List[Requirement]:
@@ -121,8 +121,12 @@ class RequirementPrioritizer(object):
         keyword_contributions = list(map(lambda r: _compute_contentbased_priority(user_profile, preferred_keywords, r), requirements))
         max_keyword_contributions, min_keyword_contributions = max(keyword_contributions), min(keyword_contributions)
         keyword_contributions = np.zeros(len(requirements))
+        is_version_redirect = False
         if max_keyword_contributions - min_keyword_contributions > 0:
             keyword_contributions = list(map(lambda v: (v - min_keyword_contributions)/(max_keyword_contributions - min_keyword_contributions), keyword_contributions))
+        else:
+            version = 0  # redirect to content-based MAUT version since the user is a newcomer (no keywords in profile)
+            is_version_redirect = True
         median_results = MedianResults(n_cc_recipients=median_n_cc_recipients, n_blocks=median_n_blocks,
                                        n_gerrit_changes=median_n_gerrit_changes, n_comments=median_n_comments,
                                        max_age_years=max_age_years)
@@ -145,7 +149,7 @@ class RequirementPrioritizer(object):
             r.computed_priority = max(r.computed_priority * 100.0 / max_priority, 1.0) if max_priority > 0.0 else 1.0
 
         requirements = filter(lambda r: r.computed_priority >= 0.01, requirements)
-        return sorted(requirements, key=lambda r: r.computed_priority, reverse=True)
+        return sorted(requirements, key=lambda r: r.computed_priority, reverse=True), is_version_redirect
 
 
 def _compute_contentbased_priority(user_profile: UserProfile, preferred_keywords: List[str], requirement: Requirement) -> float:
