@@ -135,13 +135,12 @@ class RequirementPrioritizer(object):
         for idx, r in enumerate(requirements):
             if version == 0:
                 r.computed_priority = _compute_contentbased_maut_priority(keyword_contributions[idx], user_profile,
-                                                                          preferred_keywords, median_results, r)
+                                                                          median_results, r)
             elif version == 1:
-                r.computed_priority = keyword_contributions[idx]
+                r.computed_priority = (keyword_contributions[idx] + 0.1) if r.reward else keyword_contributions[idx]
             #else:
             #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
             #                                                         preferred_keywords, r)
-            r.computed_priority = r.computed_priority * (5 if r.reward else 1)
             if r.computed_priority > max_priority:
                 max_priority = r.computed_priority
 
@@ -194,6 +193,7 @@ def _compute_contentbased_maut_priority(keywords_contribution: float, user_profi
         Keywordmatch:                 28.0
         Blocker:                      14.0
         Belongingness of Component:   11.5
+        Liked requirement:            20.5
         Age (creation):              -42.0
         Age (last update):           -?.? (TODO: consider)
         ==================================
@@ -253,6 +253,7 @@ def _compute_contentbased_maut_priority(keywords_contribution: float, user_profi
                                    + n_gerrit_changes * 22.0 + n_blocks * 14.0 + n_comments * 19.0 \
                                    + keywords_contribution * 28.0 \
                                    + component_belongingness_degree * 11.5 \
+                                   + int(requirement.reward) * 20.5 \
                                    + age_in_years * (-42.0)
     return max(sum_of_dimension_contributions, 0.0)
 
