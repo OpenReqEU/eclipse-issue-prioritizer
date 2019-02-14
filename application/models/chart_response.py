@@ -11,12 +11,12 @@ class ChartResponse(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, error: bool=True, errorMessage: str=None, url: str=None):  # noqa: E501
+    def __init__(self, error: bool=True, error_message: str=None, url: str=None):  # noqa: E501
         """ChartResponse - a model defined in Swagger
 
         :param error: Indicates whether an error occurred or not.  # noqa: E501
         :type error: bool
-        :param errorMessage: The error message.  # noqa: E501
+        :param error_message: The error message.  # noqa: E501
         """
         self.swagger_types = {
             'error': bool,
@@ -31,7 +31,7 @@ class ChartResponse(Model):
         }
 
         self._error = error
-        self._errorMessage = errorMessage
+        self._errorMessage = error_message
         self._url = url
 
     @classmethod

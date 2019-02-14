@@ -33,7 +33,6 @@ CACHED_PRIORITIZATIONS = TTLCache(maxsize=8388608, ttl=60*60*3)  # caching for 3
 CACHED_CHART_URLs = TTLCache(maxsize=1048576, ttl=60*60*3)  # caching for 3 hours
 CHART_REQUESTs = TTLCache(maxsize=8388608, ttl=60*60*3)  # caching for 3 hours
 ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER = {}
-ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER = {}
 
 
 def generate_chart_url(body):  #noga: E501
@@ -59,14 +58,6 @@ def generate_chart_url(body):  #noga: E501
                                            "RESOLVED", limit=limit_bugs)
         requirements = list(map(lambda b: Requirement.from_bug(b), bugs))
         ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = requirements
-
-        """
-        new_bugs = bugzilla_fetcher.fetch_bugs(request.assignee, request.products, request.components,
-                                               "NEW", limit=limit_bugs)
-        new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
-        ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[request.unique_key()] = new_requirements
-        """
-
         CACHED_CHART_URLs[request.unique_key()] = chart_url
         CHART_REQUESTs[chart_key] = request
         response = ChartResponse(False, None, chart_url)
@@ -148,7 +139,7 @@ def recommend_prioritized_issues(body):  # noqa: E501
                 "url": "/prioritizer/view/i/{}/k/{}".format(r.id, urllib.parse.quote(request.unique_key(), safe=''))
             }]
 
-        response = PrioritizedRecommendationsResponse(False, None, rankedBugs=ranked_bugs_list)
+        response = PrioritizedRecommendationsResponse(False, None, ranked_bugs=ranked_bugs_list)
 
     return response
 

@@ -50,7 +50,6 @@ def view_issue(issue_id, unique_key):
     components = list(filter(lambda c: len(c) > 1, map(lambda c: c.strip(), components[1:-1].replace("'", "").split(","))))
     products = list(filter(lambda c: len(c) > 1, map(lambda c: c.strip(), products[1:-1].replace("'", "").split(","))))
     keywords = list(filter(lambda c: len(c) > 1, map(lambda c: c.strip(), keywords[1:-1].replace("'", "").split(","))))
-    # http://localhost:9002/prioritizer/view/i/387978/k/a240d8b92_%23_simon.scholz%40vogella.com_%23_%7B%27SWT%27%2C%20%27UI%27%7D_%23_%7B%27Platform%27%7D_%23_set%28%29
     request = {
         'agent_id': agent_id,
         'assignee': assignee,
@@ -73,14 +72,8 @@ def show_chart(chart_key):
     keyword_extractor = keywordextractor.KeywordExtractor()
 
     resolved_requirements = recommendation_controller.ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER[chart_request.unique_key()]
-    #new_requirements = recommendation_controller.ASSIGNED_NEW_REQUIREMENTS_OF_STAKEHOLDER[chart_request.unique_key()]
-    _ = keyword_extractor.extract_keywords(resolved_requirements, enable_pos_tagging=False,
-                                           enable_lemmatization=False, lang="en")
-    #_ = keyword_extractor.extract_keywords(new_requirements, enable_pos_tagging=False,
-    #                                       enable_lemmatization=False, lang="en")
-
-    # only count those keywords that occur in NEW requirements as well as are part of the user profile (i.e., keywords of past/resolved requirements)
-    #keyword_frequencies = Counter(filter(lambda t: t in user_extracted_keywords, [t for r in new_requirements for t in r.summary_tokens]))
+    keyword_extractor.extract_keywords(resolved_requirements, enable_pos_tagging=False,
+                                       enable_lemmatization=False, lang="en")
 
     # consider keywords of past requirements
     keyword_frequencies = Counter([t for r in resolved_requirements for t in r.summary_tokens])

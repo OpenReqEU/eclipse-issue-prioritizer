@@ -11,12 +11,12 @@ class DeferRequirementResponse(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, error: bool=True, errorMessage: str=None):  # noqa: E501
+    def __init__(self, error: bool=True, error_message: str=None):  # noqa: E501
         """DeferRequirementResponse - a model defined in Swagger
 
         :param error: Indicates whether an error occurred or not.  # noqa: E501
         :type error: bool
-        :param errorMessage: The error message.  # noqa: E501
+        :param error_message: The error message.  # noqa: E501
         """
         self.swagger_types = {
             'error': bool,
@@ -29,7 +29,7 @@ class DeferRequirementResponse(Model):
         }
 
         self._error = error
-        self._errorMessage = errorMessage
+        self._errorMessage = error_message
 
     @classmethod
     def from_dict(cls, dikt) -> 'DeferRequirementResponse':

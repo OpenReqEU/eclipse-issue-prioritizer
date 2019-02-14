@@ -11,12 +11,12 @@ class PrioritizedRecommendationsResponse(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, error: bool=True, errorMessage: str=None, rankedBugs: [dict]=None):  # noqa: E501
+    def __init__(self, error: bool=True, error_message: str=None, ranked_bugs: [dict]=None):  # noqa: E501
         """PrioritizedRecommendationsResponse - a model defined in Swagger
 
         :param error: Indicates whether an error occurred or not.  # noqa: E501
         :type error: bool
-        :param errorMessage: The error message.  # noqa: E501
+        :param error_message: The error message.  # noqa: E501
         """
         self.swagger_types = {
             'error': bool,
@@ -31,8 +31,8 @@ class PrioritizedRecommendationsResponse(Model):
         }
 
         self._error = error
-        self._errorMessage = errorMessage
-        self._rankedBugs = rankedBugs
+        self._errorMessage = error_message
+        self._rankedBugs = ranked_bugs
 
     @classmethod
     def from_dict(cls, dikt) -> 'PrioritizedRecommendationsResponse':
