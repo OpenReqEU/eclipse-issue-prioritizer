@@ -120,11 +120,11 @@ class RequirementPrioritizer(object):
         median_n_comments = max(np.median(list(map(lambda r: r.number_of_comments or 0.0, requirements))), 1e-2)
         keyword_contributions = list(map(lambda r: _compute_contentbased_priority(user_profile, preferred_keywords, r), requirements))
         max_keyword_contributions, min_keyword_contributions = max(keyword_contributions), min(keyword_contributions)
-        keyword_contributions = np.zeros(len(requirements))
         is_version_redirect = False
         if max_keyword_contributions - min_keyword_contributions > 0:
             keyword_contributions = list(map(lambda v: (v - min_keyword_contributions)/(max_keyword_contributions - min_keyword_contributions), keyword_contributions))
         else:
+            keyword_contributions = np.zeros(len(requirements))
             version = 0  # redirect to content-based MAUT version since the user is a newcomer (no keywords in profile)
             is_version_redirect = True
         median_results = MedianResults(n_cc_recipients=median_n_cc_recipients, n_blocks=median_n_blocks,
@@ -163,12 +163,11 @@ def _compute_contentbased_priority(user_profile: UserProfile, preferred_keywords
     for (k, f) in user_profile.keyword_frequencies.items():
         keyword_contributions += requ_tokens.count(k) * f  # * _keyword_weight(k, preferred_keywords)
 
-    return keyword_contributions / (len(requ_tokens) * total_keyword_frequencies)
+    return keyword_contributions / float(len(requ_tokens) * total_keyword_frequencies)
 
 
 def _compute_contentbased_maut_priority(keywords_contribution: float, user_profile: UserProfile,
-                                        preferred_keywords: List[str], median_results: MedianResults,
-                                        requirement: Requirement) -> float:
+                                        median_results: MedianResults, requirement: Requirement) -> float:
     """
         ==================================
         Without feature scaling:

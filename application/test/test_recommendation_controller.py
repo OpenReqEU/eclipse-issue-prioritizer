@@ -283,13 +283,12 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
         self.assertIn(liked_requirement_id, map(lambda r: r["id"], ranked_bugs),
                       "The liked requirement is not part of the ranked list any more!")
-        # FIXME: fix this!
         for idx, rb in enumerate(ranked_bugs):
             if rb["id"] == liked_requirement_id:
                 self.assertTrue(rb["liked"], "This issue is not marked as being liked by the user.")
+                self.assertLess(idx, 50)
             else:
                 self.assertFalse(rb["liked"], "This issue is marked as being liked by the user but should not.")
-        #        self.assertLess(idx, 50)
 
     def test_unlike_requirement(self):
         assignee = "simon.scholz@vogella.com"
