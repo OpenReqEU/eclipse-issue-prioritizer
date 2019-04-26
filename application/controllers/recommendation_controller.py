@@ -85,6 +85,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
         limit = 75
         max_age_years = 7  # TODO: outsource this!!!
         refetch_threshold_limit = limit - 5
+
+        """
         reserved_aids = {
             'a1a1a1a1a': 0,
             'b2b2b2b2b': 1
@@ -97,6 +99,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
             version = bernoulli.rvs(0.5)
             db.set(version_key, version)
             db.dump()
+        """
+        version = 0
 
         fetch = True
         is_version_redirect = False
