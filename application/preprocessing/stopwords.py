@@ -17,12 +17,7 @@ def remove_stopwords(requirements, lang="en"):
             for line in f:
                 data_set_stop_words.add(line.strip())
 
-    if lang == "en":
-        stop_words = set(list(data_set_stop_words))
-    elif lang == "de":
-        stop_words = set(list(data_set_stop_words))
-    else:
-        stop_words = data_set_stop_words
+    stop_words = data_set_stop_words
 
     for r in requirements:
         r.summary_tokens = list(filter(lambda t: t not in stop_words, r.summary_tokens))
