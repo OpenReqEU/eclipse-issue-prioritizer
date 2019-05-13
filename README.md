@@ -71,6 +71,8 @@ The Swagger definition lives here:
 http://217.172.12.199:9002/swagger.json
 ```
 
+[Rendered Documentation](https://api.openreq.eu/#/services/issue-prioritizer-api)
+
 ### Notes for developers
 None.
 
