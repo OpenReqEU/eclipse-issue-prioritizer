@@ -4,6 +4,7 @@ import os
 from application.util import helper
 from flask import json
 from urllib.parse import urlparse
+from application.controllers import recommendation_controller
 from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest
 from application.models.like_requirement_request import LikeRequirementRequest
 from application.models.defer_requirement_request import DeferRequirementRequest
@@ -506,6 +507,45 @@ class TestRecommendationController(BaseTestCase):
         all_keys = db.getall()
         remaining_keys_containing_agent_id = list(filter(lambda k: self.agent_id in k, all_keys))
         self.assertEqual(len(remaining_keys_containing_agent_id), 0, "No or not all keys were deleted!")
+        return response
+
+    def test_delete_user_profile_and_check_cache(self):
+        assignee = "simon.scholz@vogella.com"
+        expected_components = ["UI", "IDE"]
+        expected_products = ["Platform"]
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee=assignee,
+                                                 components=expected_components,
+                                                 products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        body = DeleteProfileRequest(agent_id=self.agent_id)
+        response = self.client.open(
+            "/prioritizer/profile/delete",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+
+        db = pickledb.load(os.path.join(helper.DATA_PATH, "storage.db"), False)
+        all_keys = db.getall()
+        remaining_keys_containing_agent_id = list(filter(lambda k: self.agent_id in k, all_keys))
+        self.assertEqual(len(remaining_keys_containing_agent_id), 0, "No or not all keys were deleted!")
+        self.assertEqual(len(list(filter(lambda k: k.startswith("{}_".format(self.agent_id)), recommendation_controller.CACHED_PRIORITIZATIONS.keys()))), 0)
+        self.assertEqual(len(list(filter(lambda k: k.startswith("{}_".format(self.agent_id)), recommendation_controller.CACHED_CHART_URLs.keys()))), 0)
+        self.assertEqual(len(list(filter(lambda k: k.startswith("{}_".format(self.agent_id)), recommendation_controller.CHART_REQUESTs.keys()))), 0)
         return response
 
     def _is_valid_url(self, url):

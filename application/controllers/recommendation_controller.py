@@ -18,7 +18,6 @@ from datetime import datetime, timedelta
 from flask import current_app as app
 from flask import json
 from cachetools import TTLCache
-from scipy.stats import bernoulli
 import random
 import string
 import pickledb
@@ -252,6 +251,17 @@ def delete_profile(body):  # noqa: E501
         app.logger.info("Delete profile: version={}; request=({})".format(version, content))
         all_keys = db.getall()
         keys_to_be_removed = list(filter(lambda k: request.agent_id in k, all_keys))
+
+        for k in CACHED_PRIORITIZATIONS:
+            if k.startswith("{}_".format(request.agent_id)):
+                del CACHED_PRIORITIZATIONS[k]
+        for k in CACHED_CHART_URLs:
+            if k.startswith("{}_".format(request.agent_id)):
+                del CACHED_CHART_URLs[k]
+        for k in CHART_REQUESTs:
+            if k.startswith("{}_".format(request.agent_id)):
+                del CHART_REQUESTs[k]
+
         for key in keys_to_be_removed:
             db.rem(key)
         db.dump()
