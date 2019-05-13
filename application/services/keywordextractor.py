@@ -5,7 +5,6 @@ from application.models.requirement import Requirement
 from application.util import helper
 from application.preprocessing import filters
 from application.preprocessing import stopwords
-from application.preprocessing import pos
 import logging
 import re
 
@@ -44,8 +43,7 @@ class KeywordExtractor(object):
             r.new_summary = r.new_summary.replace('i.e.', '')
             r.new_summary = r.new_summary.replace('in order to', '')
 
-    def extract_keywords(self, requirements: List[Requirement], enable_pos_tagging=False,
-                         enable_lemmatization=False, lang="en") -> List[str]:
+    def extract_keywords(self, requirements: List[Requirement], lang="en") -> List[str]:
         _logger.info("Preprocessing bugs")
         assert(isinstance(requirements, list))
         if len(requirements) == 0:
@@ -101,25 +99,6 @@ class KeywordExtractor(object):
         #extracted_key_words = tokenizer.key_words_for_tokenization(all_requirement_summaries)
         extracted_unique_key_words = list(set([t for r in requirements for t in r.summary_tokens]))
         _logger.info("Number of extracted key words {} (altogether)".format(len(extracted_unique_key_words)))
-
-        # -----------------------------------------------------------------------------------------------
-        # NOTE: Both NLTK and Stanford POS-tagging is not working as good as expected, because we are
-        #       getting a lot of wrong tags (e.g. NN instead of VB).
-        #       -> Outlook: use unsupervised POS-tagging (very time consuming to
-        #                   manually label enough training data...)
-        # -----------------------------------------------------------------------------------------------
-        if enable_pos_tagging is True:
-            _logger.warning("POS Tagging enabled!")
-            from application.preprocessing import lemmatizer
-            pos.pos_tagging(requirements, lang=lang)
-
-        # -----------------------------------------------------------------------------------------------
-        # NOTE: it does not makes sense to use both lemmatization
-        #       lemmatizer also requires pos_tagging beforehand!
-        # -----------------------------------------------------------------------------------------------
-        if enable_lemmatization is True:
-            _logger.warning("Lemmatization enabled!")
-            lemmatizer.word_net_lemmatizer(requirements, lang=lang)
 
         n_filtered_tokens = n_tokens - sum(map(lambda t: len(list(t.summary_tokens)), requirements))
         if n_tokens > 0:

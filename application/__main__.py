@@ -7,7 +7,6 @@ from application.models.prioritized_recommendations_request import PrioritizedRe
 from flask import render_template
 from flask import redirect
 from flask import abort
-from flask import json
 from application.services import keywordextractor
 from collections import Counter
 import urllib.request
@@ -72,8 +71,7 @@ def show_chart(chart_key):
     keyword_extractor = keywordextractor.KeywordExtractor()
 
     resolved_requirements = recommendation_controller.ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER[chart_request.unique_key()]
-    keyword_extractor.extract_keywords(resolved_requirements, enable_pos_tagging=False,
-                                       enable_lemmatization=False, lang="en")
+    keyword_extractor.extract_keywords(resolved_requirements, lang="en")
 
     # consider keywords of past requirements
     keyword_frequencies = Counter([t for r in resolved_requirements for t in r.summary_tokens])

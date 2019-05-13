@@ -70,8 +70,7 @@ class RequirementPrioritizer(object):
                                                 max_age_years=max_age_years)
         requirements = list(map(lambda b: Requirement.from_bug(b), bugs))
         components = list(map(lambda r: r.component, requirements))
-        self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
-                                                enable_lemmatization=False, lang="en")
+        self.keyword_extractor.extract_keywords(requirements, lang="en")
         component_frequencies = Counter(components)
         keyword_frequencies = Counter([t for r in requirements for t in r.summary_tokens])
         return component_frequencies, keyword_frequencies
@@ -112,8 +111,7 @@ class RequirementPrioritizer(object):
                    preferred_keywords: List[str], max_age_years: int, version: int) -> List[Requirement]:
         requirements = list(filter(lambda r: self._is_relevant_requirement(agent_id, r), requirements))
         requirements = list(map(lambda r: self._reward_liked_requirement(agent_id, r), requirements))
-        self.keyword_extractor.extract_keywords(requirements, enable_pos_tagging=False,
-                                                enable_lemmatization=False, lang="en")
+        self.keyword_extractor.extract_keywords(requirements, lang="en")
         median_n_cc_recipients = max(np.median(list(map(lambda r: len(r.cc), requirements))), 1e-2)
         median_n_blocks = max(np.median(list(map(lambda r: len(r.blocks), requirements))), 1e-2)  # TODO: filter only "https://git.eclipse.org/..." URLs
         median_n_gerrit_changes = max(np.median(list(map(lambda r: len(r.see_also), requirements))), 1e-2)

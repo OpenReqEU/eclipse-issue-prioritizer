@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import nltk
 import os
 import logging
 from application.util import helper
-from nltk.corpus import stopwords
 
 
 _logger = logging.getLogger(__name__)
-nltk.data.path = [os.path.join(helper.APP_PATH, "corpora", "nltk_data")]
 
 
 def remove_stopwords(requirements, lang="en"):
@@ -21,9 +18,9 @@ def remove_stopwords(requirements, lang="en"):
                 data_set_stop_words.add(line.strip())
 
     if lang == "en":
-        stop_words = set(stopwords.words('english') + list(data_set_stop_words))
+        stop_words = set(list(data_set_stop_words))
     elif lang == "de":
-        stop_words = set(stopwords.words('german') + list(data_set_stop_words))
+        stop_words = set(list(data_set_stop_words))
     else:
         stop_words = data_set_stop_words
 
