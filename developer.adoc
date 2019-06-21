@@ -1,4 +1,6 @@
-Documentation for developers
+== Documentation for developers
+
+=== Application logs
 
 After sucessfully installing the issue prioritizer on your server you can see the incoming requests in
 /application/logs/activity.log
