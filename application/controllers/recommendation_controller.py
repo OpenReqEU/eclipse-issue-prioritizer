@@ -83,8 +83,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
     if connexion.request.is_json:
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
-        """
         refetch_threshold_limit = LIMIT - 5
+        """
         reserved_aids = {
             'a1a1a1a1a': 0,
             'b2b2b2b2b': 1

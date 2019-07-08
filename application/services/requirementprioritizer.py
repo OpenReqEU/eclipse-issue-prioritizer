@@ -116,7 +116,7 @@ class RequirementPrioritizer(object):
         median_n_blocks = max(np.median(list(map(lambda r: len(r.blocks), requirements))), 1e-2)  # TODO: filter only "https://git.eclipse.org/..." URLs
         median_n_gerrit_changes = max(np.median(list(map(lambda r: len(r.see_also), requirements))), 1e-2)
         median_n_comments = max(np.median(list(map(lambda r: r.number_of_comments or 0.0, requirements))), 1e-2)
-        keyword_contributions = list(map(lambda r: _compute_contentbased_priority(user_profile, preferred_keywords, r), requirements))
+        keyword_contributions = list(map(lambda r: _compute_contentbased_priority(user_profile.keyword_frequencies, preferred_keywords, r), requirements))
         max_keyword_contributions, min_keyword_contributions = max(keyword_contributions), min(keyword_contributions)
         is_version_redirect = False
         if max_keyword_contributions - min_keyword_contributions > 0:
