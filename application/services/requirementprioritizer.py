@@ -136,9 +136,7 @@ class RequirementPrioritizer(object):
                                                                           median_results, r)
             elif version == 1:
                 r.computed_priority = (keyword_contributions[idx] + 0.1) if r.reward else keyword_contributions[idx]
-            #else:
-            #    r.computed_priority = compute_collaborative_priority(request.assignee, user_extracted_keywords,
-            #                                                         preferred_keywords, r)
+
             if r.computed_priority > max_priority:
                 max_priority = r.computed_priority
 
@@ -149,16 +147,16 @@ class RequirementPrioritizer(object):
         return sorted(requirements, key=lambda r: r.computed_priority, reverse=True), is_version_redirect
 
 
-def _compute_contentbased_priority(user_profile: UserProfile, preferred_keywords: List[str], requirement: Requirement) -> float:
-    # FIXME: wrong preferred_keywords handling !!!
-    total_keyword_frequencies = sum(user_profile.keyword_frequencies.values())
+def _compute_contentbased_priority(keyword_frequencies: Counter, preferred_keywords: List[str], requirement: Requirement) -> float:
+    # FIXME: preferred_keywords handling is suboptimal!!!
+    total_keyword_frequencies = sum(keyword_frequencies.values())
     requ_tokens = requirement.summary_tokens
     if total_keyword_frequencies == 0 or len(requ_tokens) == 0:
         return 0.0
 
     keyword_contributions = 0.0
-    for (k, f) in user_profile.keyword_frequencies.items():
-        keyword_contributions += requ_tokens.count(k) * f  # * _keyword_weight(k, preferred_keywords)
+    for (k, f) in keyword_frequencies.items():
+        keyword_contributions += requ_tokens.count(k) * f * _keyword_weight(k, preferred_keywords)
 
     return keyword_contributions / float(len(requ_tokens) * total_keyword_frequencies)
 
@@ -241,23 +239,53 @@ def _compute_contentbased_maut_priority(keywords_contribution: float, user_profi
     else:
         component_belongingness_degree = 0.0
 
-    """
-    print(component_belongingness_degree * 11.5)
-    print(age_in_years * (-42.0))
-    print(keywords_contribution * 28.0)
-    print("-"*80)
-    """
-    sum_of_dimension_contributions = n_assigned_to_me * 25.0 + n_cc_recipients * 17.0 \
-                                   + n_gerrit_changes * 22.0 + n_blocks * 14.0 + n_comments * 19.0 \
-                                   + keywords_contribution * 28.0 \
-                                   + component_belongingness_degree * 11.5 \
-                                   + int(requirement.reward) * 20.5 \
-                                   + age_in_years * (-42.0)
+    severity_map = {
+        'blocker': 6,
+        'critical': 5,
+        'major': 4,
+        'normal': 3,
+        'minor': 2,
+        'trivial': 1,
+        'enhancement': 0
+    }
+
+    priority_map = {
+        'P1': 4,
+        'P2': 3,
+        'P3': 2,
+        'P4': 1,
+        'P5': 0
+    }
+
+    weights = {
+        "assigned_to": 25.0,
+        "cc": 17.0,
+        "gerrit": 22.0,
+        "blocks": 14.0,
+        "comments": 19.0,
+        "keywords": 28.0,
+        "component_belongingness": 28.0,
+        "reward": 20.5,
+        "severity": 18.0,
+        "priority": 22.0,
+        "age": -42.0
+    }
+
+    sum_of_dimension_contributions = n_assigned_to_me * weights["assigned_to"] \
+                                   + n_cc_recipients * weights["cc"] \
+                                   + n_gerrit_changes * weights["gerrit"] \
+                                   + n_blocks * weights["blocks"] \
+                                   + n_comments * weights["comments"] \
+                                   + keywords_contribution * weights["keywords"] \
+                                   + severity_map[requirement.severity] * weights["severity"] \
+                                   + priority_map[requirement.priority] * weights["priority"] \
+                                   + component_belongingness_degree * weights["component_belongingness"] \
+                                   + int(requirement.reward) * weights["reward"] \
+                                   + age_in_years * weights["age"]
     return max(sum_of_dimension_contributions, 0.0)
 
 
 def _keyword_weight(k, preferred_keywords):
-    # TODO: does not work!!
     weight_of_preferred_keyword = 3.0
     return weight_of_preferred_keyword if k in preferred_keywords else 1.0
 

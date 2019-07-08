@@ -124,14 +124,10 @@ class BugzillaFetcher(object):
         }
         r = requests.get(url, headers=headers)
         r.raise_for_status()
-        print(r.headers)
-        print(r.status_code == requests.codes.ok)
         parsed_data = r.json()
-        comments_data = parsed_data["bugs"][str(bug_id)]["comments"]
-        comments = list(map(lambda d: Comment(**d), comments_data))
-        return comments
+        return parsed_data["bugs"][str(bug_id)]["comments"]
 
-    def fetch_comments_parallelly(self, bug_ids: List[int]) -> [Comment]:
+    def fetch_comments_parallelly(self, bug_ids: List[int], n_max_workers: int=16) -> [Comment]:
         headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
             "Accept": "application/json"
@@ -141,7 +137,8 @@ class BugzillaFetcher(object):
             print("ERROR: An exception occurred! {}".format(exception))
 
         urls = list(map(lambda bug_id: "{}/{}/comment".format(self._base_url, bug_id), bug_ids))
-        session = FuturesSession(max_workers=len(urls))
+        n_workers = min(len(urls), n_max_workers)
+        session = FuturesSession(max_workers=n_workers)
         futures = [session.get(u, headers=headers) for u in urls]
         done, incomplete = wait(futures)
         session.close()
@@ -154,6 +151,7 @@ class BugzillaFetcher(object):
         bug_comments = {}
         for f in done:
             r = f.result()
+            r.raise_for_status()
             parsed_data = r.json()
             bugs_data = parsed_data["bugs"]
             included_bug_ids = list(bugs_data.keys())

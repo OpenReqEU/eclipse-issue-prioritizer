@@ -32,6 +32,8 @@ CACHED_PRIORITIZATIONS = TTLCache(maxsize=8388608, ttl=60*60*3)  # caching for 3
 CACHED_CHART_URLs = TTLCache(maxsize=1048576, ttl=60*60*3)  # caching for 3 hours
 CHART_REQUESTs = TTLCache(maxsize=8388608, ttl=60*60*3)  # caching for 3 hours
 ASSIGNED_RESOLVED_REQUIREMENTS_OF_STAKEHOLDER = {}
+MAX_AGE_YEARS = 7
+LIMIT = 75
 
 
 def generate_chart_url(body):  #noga: E501
@@ -81,11 +83,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
     if connexion.request.is_json:
         content = connexion.request.get_json()
         request = PrioritizedRecommendationsRequest.from_dict(content)
-        limit = 75
-        max_age_years = 7  # TODO: outsource this!!!
-        refetch_threshold_limit = limit - 5
-
         """
+        refetch_threshold_limit = LIMIT - 5
         reserved_aids = {
             'a1a1a1a1a': 0,
             'b2b2b2b2b': 1
@@ -100,7 +99,6 @@ def recommend_prioritized_issues(body):  # noqa: E501
             db.dump()
         """
         version = 0
-
         fetch = True
         is_version_redirect = False
 
@@ -109,15 +107,15 @@ def recommend_prioritized_issues(body):  # noqa: E501
             sorted_requirements, is_version_redirect = prioritizer.prioritize(
                 agent_id=request.agent_id, requirements=requirements,
                 user_profile=user_profile, preferred_keywords=request.keywords,
-                max_age_years=max_age_years, version=version)
+                max_age_years=MAX_AGE_YEARS, version=version)
             fetch = len(sorted_requirements) < refetch_threshold_limit
 
         if fetch:
             try:
                 result = prioritizer.fetch_and_prioritize(agent_id=request.agent_id, assignee=request.assignee,
                                                           components=request.components, products=request.products,
-                                                          preferred_keywords=request.keywords, limit=limit,
-                                                          max_age_years=max_age_years, version=version)
+                                                          preferred_keywords=request.keywords, limit=LIMIT,
+                                                          max_age_years=MAX_AGE_YEARS, version=version)
                 sorted_requirements, user_profile, is_version_redirect = result
                 CACHED_PRIORITIZATIONS[request.unique_key()] = result
             except:
