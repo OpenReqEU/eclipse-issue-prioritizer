@@ -74,7 +74,7 @@ http://217.172.12.199:9002/swagger.json
 [Rendered Documentation](https://api.openreq.eu/#/services/issue-prioritizer-api)
 
 ### Notes for developers
-None.
+See [Developer Guidelines](https://github.com/OpenReqEU/eclipse-issue-prioritizer/blob/master/developer.adoc "Developer Guidlines")
 
 ### Sources
 None.
