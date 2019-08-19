@@ -258,17 +258,17 @@ def _compute_contentbased_maut_priority(keywords_contribution: float, user_profi
     }
 
     weights = {
-        "assigned_to": 25.0,
-        "cc": 17.0,
-        "gerrit": 22.0,
-        "blocks": 14.0,
-        "comments": 19.0,
-        "keywords": 28.0,
-        "component_belongingness": 28.0,
-        "reward": 20.5,
-        "severity": 18.0,
-        "priority": 22.0,
-        "age": -42.0
+        "assigned_to": 2.50,
+        "cc": 1.70,
+        "gerrit": 2.20,
+        "blocks": 1.40,
+        "comments": 1.90,
+        "keywords": 2.80,
+        "component_belongingness": 2.80,
+        "reward": 2.00,
+        "severity": 1.80,
+        "priority": 2.20,
+        "age": -4.20
     }
 
     sum_of_dimension_contributions = n_assigned_to_me * weights["assigned_to"] \

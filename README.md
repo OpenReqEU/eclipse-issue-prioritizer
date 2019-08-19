@@ -16,6 +16,22 @@ The estimation of a bug/issue is based on the computation of a priority value by
 After the estimation, the recommended list of issues (sorted by their priorities) is finally sent to the Eclipse plugin.
 Issues with very low priorities are excluded from the recommended list.
 
+The approach provided by this code base is based on multi-attribute utility theory (MAUT) which uses the following set of attributes (meta-data) provided by Bugzilla
+to rank the list of recommended issues. The weights have been learned based on historic data of Eclipse Bugzilla issues and express the relevance/importance.
+| Attribute               | Weight      |
+| ----------------------- | ----------- |
+| assigned_to             |  2.5        |
+| cc                      |  1.7        |
+| gerrit                  |  2.2        |
+| blocks                  |  1.4        |
+| comments                |  1.9        |
+| keywords                |  2.8        |
+| component_belongingness |  2.8        |
+| reward                  |  2.0        |
+| severity                |  1.8        |
+| priority                |  2.2        |
+| age                     | -4.2        |
+
 
 ### Which technologies are used
 This service requires Python 3.7.0+
