@@ -18,19 +18,20 @@ Issues with very low priorities are excluded from the recommended list.
 
 The approach provided by this code base is based on multi-attribute utility theory (MAUT) which uses the following set of attributes (meta-data) provided by Bugzilla
 to rank the list of recommended issues. The weights have been learned based on historic data of Eclipse Bugzilla issues and express the relevance/importance.
-| Attribute               | Weight      |
-| ----------------------- | ----------- |
-| assigned_to             |  2.5        |
-| cc                      |  1.7        |
-| gerrit                  |  2.2        |
-| blocks                  |  1.4        |
-| comments                |  1.9        |
-| keywords                |  2.8        |
-| component_belongingness |  2.8        |
-| reward                  |  2.0        |
-| severity                |  1.8        |
-| priority                |  2.2        |
-| age                     | -4.2        |
+
+| Attribute                 | Weight      | Description                                                                                   |
+| ------------------------- | :---------: | --------------------------------------------------------------------------------------------- |
+| `assigned_to`             |  2.5        | States whether the current user/developer is already assigned to the (unresolved) issue.      |
+| `cc`                      |  1.7        | Number of cc-mail-recipients assigned to the issue                                            |
+| `gerrit`                  |  2.2        | Number of source code contributions (i.e., commits for this issue in GIT)                     |
+| `blocks`                  |  1.4        | Number of issues which block/depend on the issue                                              |
+| `comments`                |  1.9        | Number of comments provided for the issue                                                     |
+| `keywords`                |  2.8        | Number of keywords extracted from the issue matching the user's/developer's profile           |
+| `component_belongingness` |  2.8        | Degree of the developer's past contributions in the Eclipse component of the issue            |
+| `reward`                  |  2.0        | `TRUE` (i.e., 1) if the user/developer liked the issue `FALSE` (i.e., 0) otherwise            |
+| `severity`                |  1.8        | Severity level defined for the issue                                                          |
+| `priority`                |  2.2        | Estimated global priority level of the issue for the community                                |
+| `age`                     | -4.2        | Age of the issue (negative weight indicates that the older the issue the less relevant it is) |
 
 
 ### Which technologies are used
