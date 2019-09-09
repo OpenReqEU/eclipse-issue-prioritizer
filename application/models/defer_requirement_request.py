@@ -79,15 +79,15 @@ class DeferRequirementRequest(Model):
         return self._id
 
     @id.setter
-    def id(self, ID: int):
+    def id(self, id_value: int):
         """Sets the ID of the issue.
 
 
-        :param ID: The ID of the issue.
-        :type ID: int
+        :param id_value: The ID of the issue.
+        :type id_value: int
         """
 
-        self._id = ID
+        self._id = id_value
 
     @property
     def agent_id(self) -> str:

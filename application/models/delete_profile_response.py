@@ -74,12 +74,12 @@ class DeleteProfileResponse(Model):
         return self._errorMessage
 
     @errorMessage.setter
-    def errorMessage(self, errorMessage: str):
+    def errorMessage(self, error_message: str):
         """Sets the components.
 
 
-        :param errorMessage: The error message attribute.
-        :type errorMessage: str
+        :param error_message: The error message attribute.
+        :type error_message: str
         """
 
-        self._errorMessage = errorMessage
+        self._errorMessage = error_message

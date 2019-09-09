@@ -3,7 +3,6 @@
 import connexion
 from application import encoder
 from application.controllers import recommendation_controller
-from application.models.prioritized_recommendations_request import PrioritizedRecommendationsRequest  # noqa: E501
 from flask import render_template
 from flask import redirect
 from flask import abort
@@ -12,7 +11,6 @@ from collections import Counter
 import urllib.request
 from application.util import helper
 from logging.handlers import TimedRotatingFileHandler
-#from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 import os
 
@@ -33,9 +31,6 @@ def main():
     app.add_api('swagger.yaml', arguments={'title': 'OpenReq Requirement Prioritization Recommendation Service'})
     helper.init_config()
     helper.substitute_host_in_swagger(external_ip, "localhost")
-    #scheduler = BackgroundScheduler()
-    #scheduler.add_job(func=cronjob_update_profiles, trigger="interval", seconds=3)
-    #scheduler.start()
     app.run(port=helper.app_port())
 
 

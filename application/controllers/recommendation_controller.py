@@ -240,30 +240,31 @@ def defer_prioritized_issue(body):  # noqa: E501
 
 
 def delete_profile(body):  # noqa: E501
-    response = None
+    if not connexion.request.is_json:
+        return None
 
-    if connexion.request.is_json:
-        content = connexion.request.get_json()
-        request = DeleteProfileRequest.from_dict(content)
-        version = db.get("VERSION_{}".format(request.agent_id))
-        app.logger.info("Delete profile: version={}; request=({})".format(version, content))
-        all_keys = db.getall()
-        keys_to_be_removed = list(filter(lambda k: request.agent_id in k, all_keys))
+    content = connexion.request.get_json()
+    request = DeleteProfileRequest.from_dict(content)
+    version = db.get("VERSION_{}".format(request.agent_id))
+    app.logger.info("Delete profile: version={}; request=({})".format(version, content))
+    all_keys = db.getall()
+    keys_to_be_removed = list(filter(lambda k: request.agent_id in k, all_keys))
 
-        for k in CACHED_PRIORITIZATIONS:
-            if k.startswith("{}_".format(request.agent_id)):
-                del CACHED_PRIORITIZATIONS[k]
-        for k in CACHED_CHART_URLs:
-            if k.startswith("{}_".format(request.agent_id)):
-                del CACHED_CHART_URLs[k]
-        for k in CHART_REQUESTs:
-            if k.startswith("{}_".format(request.agent_id)):
-                del CHART_REQUESTs[k]
+    for k in CACHED_PRIORITIZATIONS:
+        if k.startswith("{}_".format(request.agent_id)):
+            del CACHED_PRIORITIZATIONS[k]
+    for k in CACHED_CHART_URLs:
+        if k.startswith("{}_".format(request.agent_id)):
+            del CACHED_CHART_URLs[k]
+    for k in CHART_REQUESTs:
+        if k.startswith("{}_".format(request.agent_id)):
+            del CHART_REQUESTs[k]
 
-        for key in keys_to_be_removed:
-            db.rem(key)
-        db.dump()
-        response = DeleteProfileResponse(False, None)
+    for key in keys_to_be_removed:
+        db.rem(key)
+
+    db.dump()
+    response = DeleteProfileResponse(False, None)
 
     return response
 

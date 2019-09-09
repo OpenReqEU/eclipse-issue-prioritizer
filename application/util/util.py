@@ -108,7 +108,6 @@ def deserialize_model(data, klass):
                 and instance.attribute_map[attr] in data \
                 and isinstance(data, (list, dict)):
             value = data[instance.attribute_map[attr]]
-            # FIXME: HACK!!!
             if attr in ("components", "products", "keywords"):
                 setattr(instance, attr, value)
             else:
