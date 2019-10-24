@@ -118,7 +118,8 @@ def recommend_prioritized_issues(body):  # noqa: E501
                                                           max_age_years=MAX_AGE_YEARS, version=version)
                 sorted_requirements, user_profile, is_version_redirect = result
                 CACHED_PRIORITIZATIONS[request.unique_key()] = result
-            except:
+            except Exception as e:
+                app.logger.error(e, exc_info=True)
                 return PrioritizedRecommendationsResponse(True, "An error occurred! Please try again later.")
 
         ranked_bugs_list = []

@@ -70,6 +70,12 @@ def show_chart(chart_key):
 
     # consider keywords of past requirements
     keyword_frequencies = Counter([t for r in resolved_requirements for t in r.summary_tokens])
+    # use maximum frequency as weight for preferred keywords
+    most_common_keyword = keyword_frequencies.most_common(1)
+    preferred_keywords_weight = most_common_keyword[0][1] if len(most_common_keyword) > 0 else 1
+    for k in chart_request.keywords:
+        keyword_frequencies[k] = preferred_keywords_weight
+
     return render_template(
         "chart.html",
         assignee_email_address=chart_request.assignee,

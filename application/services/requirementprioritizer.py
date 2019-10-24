@@ -64,7 +64,7 @@ class RequirementPrioritizer(object):
         return True
 
     def _compute_user_profile(self, assignee: str, components: List[str], products: List[str],
-                              limit: int=0, max_age_years: int=7) -> (Counter, Counter):
+                              preferred_keywords: List[str], limit: int=0, max_age_years: int=7) -> (Counter, Counter):
         # compute user profile (based on keywords)
         bugs = self.bugzilla_fetcher.fetch_bugs(assignee, products, components, "RESOLVED", limit=limit,
                                                 max_age_years=max_age_years)
@@ -73,6 +73,11 @@ class RequirementPrioritizer(object):
         self.keyword_extractor.extract_keywords(requirements, lang="en")
         component_frequencies = Counter(components)
         keyword_frequencies = Counter([t for r in requirements for t in r.summary_tokens])
+        # use maximum frequency as weight for preferred keywords
+        most_common_keyword = keyword_frequencies.most_common(1)
+        preferred_keywords_weight = most_common_keyword[0][1] if len(most_common_keyword) > 0 else 1
+        for k in preferred_keywords:
+            keyword_frequencies[k] = preferred_keywords_weight
         return component_frequencies, keyword_frequencies
 
     def fetch_and_prioritize(self, agent_id: str, assignee: str, components: List[str], products: List[str],
@@ -80,7 +85,7 @@ class RequirementPrioritizer(object):
                              version: int) -> (List[Requirement], UserProfile):
         # advanced content-based recommendation with MAUT
         component_frequencies, keyword_frequencies = self._compute_user_profile(assignee, components, products,
-                                                                                0, max_age_years)
+                                                                                preferred_keywords, 0, max_age_years)
         new_bugs = self.bugzilla_fetcher.fetch_bugs(None, products, components, "NEW", max_age_years=max_age_years)
         new_requirements = list(map(lambda b: Requirement.from_bug(b), new_bugs))
         user_profile = UserProfile(assignee_email_address=assignee, component_frequencies=component_frequencies,

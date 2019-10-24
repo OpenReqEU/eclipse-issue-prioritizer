@@ -6,6 +6,7 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
     <script src="{{ url_for('static', filename='index.js') }}"></script>
     <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <style>
@@ -19,6 +20,10 @@
             font-size: 16px;
             font-weight: 300;
             color: #999999;
+        }
+
+        .slices > path, .labelName > text {
+            cursor: help;
         }
 
         #or-remaining-keywords-list {
@@ -76,11 +81,11 @@
 </head>
 <body>
     <div class="close-modal">
-      <a id="close-modal-button" href="#" title="Close">
-          <img class="close-button" src="{{ url_for('static', filename='close.svg') }}" width="40" height="40" alt="Close" />
+      <a id="close-modal-button" href="#">
+          <img class="close-button" src="{{ url_for('static', filename='close.svg') }}" width="40" height="40" alt="Close" data-position="bottom" data-tooltip="Close" />
       </a>
     </div>
-	<h1 id="or-title">Keywords of {{ assignee_email_address }}</h1>
+	<h1 id="or-title">User Profile Keywords of {{ assignee_email_address }}</h1>
     <div id="chart"></div>
     <div id="or-remaining-keywords-list">
         <h2 id="or-subtitle">Remaining Keywords</h2>
@@ -97,6 +102,7 @@
             </table>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script type="text/javascript">
         var occurrenceData = { {% for key, value in keyword_frequencies.most_common() %}"{{key}}": {{value}},{% endfor %} };
         var keywordSum = 0;
@@ -150,6 +156,7 @@
             $(".close-modal").show();
             $("#chart").hide();
             $("#or-remaining-keywords-list").show();
+            $(".close-button").tooltip();
             return false;
         }
 
@@ -213,9 +220,7 @@
             renderKeywordsListAndDonutChart(chartData);
 
             if (remainderKeywords.length > 0) {
-                $(".slices > path:last").unbind("click");
-                $(".slices > path:last").on("click", lastSliceClickEvent);
-                $(".slices > path:last").css("cursor", "pointer");
+                bindClickEvents();
                 $("#close-modal-button").unbind("click");
                 $("#close-modal-button").on("click", closeModalClickEvent);
             }
@@ -223,11 +228,22 @@
             window.addEventListener('resize', function (event) {
                 $("#chart").children().remove();
                 renderKeywordsListAndDonutChart(chartData);
-                $(".slices > path:last").unbind("click");
-                $(".slices > path:last").on("click", lastSliceClickEvent);
-                $(".slices > path:last").css("cursor", "pointer");
+
+                if (remainderKeywords.length > 0) {
+                    bindClickEvents();
+                }
             });
         });
+
+        function bindClickEvents() {
+            $(".slices > path:last, .labelName > text:last").unbind("click");
+            $(".slices > path:last, .labelName > text:last").on("click", lastSliceClickEvent);
+            $(".slices > path:last, .labelName > text:last").css("cursor", "pointer");
+            $(".slices > path:last, .labelName > text:last").attr("data-position", "bottom");
+            $(".slices > path:last, .labelName > text:last").attr("data-tooltip", "Click to expand...");
+            $(".slices > path:last, .labelName > text:last").tooltip();
+            return false;
+        }
     </script>
 </body>
 </html>

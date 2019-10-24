@@ -47,7 +47,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -71,6 +71,55 @@ class TestRecommendationController(BaseTestCase):
         # make sure that requirement summaries contain uppercase letters (i.e., are not lowercased by the prioritizer)
         self.assertTrue(any(c.isupper() for rb in ranked_bugs for c in rb["summary"]))
 
+    def test_compute_prioritization_for_assignee_with_keywords(self):
+        expected_components = ["UI", "IDE"]
+        expected_products = ["Platform"]
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee="simon.scholz@vogella.com",
+                                                 components=expected_components, products=expected_products, keywords=[])
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
+        rb = ranked_bugs[-1]
+        id_of_last_requirement = rb["id"]
+        self.assertIsInstance(rb["keywords"], list)
+        keywords_of_last_requirement = rb["keywords"]
+
+        body = PrioritizedRecommendationsRequest(agent_id=self.agent_id, assignee="max.mustermann@example.com",
+                                                 components=expected_components, products=expected_products,
+                                                 keywords=keywords_of_last_requirement)
+        response = self.client.open(
+            "/prioritizer/compute",
+            method="POST",
+            data=json.dumps(body),
+            content_type="application/json")
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
+        response = response.json
+        self.assertFalse(response["error"], "An error occurred while processing the request!")
+        if "errorMessage" in response:
+            self.assertIsNone(response["errorMessage"], "Error message is not empty!")
+        ranked_bugs = response["rankedBugs"]
+        self.assertIsInstance(ranked_bugs, list)
+        self.assertTrue(len(ranked_bugs) > 0, "List of prioritizes requirements is empty!")
+        self.assertTrue(all(map(lambda r: 0.1 <= r["priority"] <= 100.0, ranked_bugs)))
+        for idx, rb in enumerate(ranked_bugs):
+            if rb["id"] != id_of_last_requirement:
+                continue
+            self.assertIsInstance(rb["keywords"], list)
+            self.assertEquals(rb["keywords"], keywords_of_last_requirement)
+            # make sure that the requirement is not the last requirement any more
+            self.assertGreater(len(ranked_bugs), idx)
+
     def test_compute_prioritization_for_assignee_without_keywords(self):
         expected_components = ["UI", "IDE"]
         expected_products = ["Platform"]
@@ -82,7 +131,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -116,7 +165,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -135,7 +184,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -149,7 +198,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -170,7 +219,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -187,7 +236,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -209,7 +258,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -219,11 +268,11 @@ class TestRecommendationController(BaseTestCase):
         self.assertTrue(self._is_valid_url(url), "Invalid URL {}".format(url))
         url = urlparse(url).path
         response = self.client.open(url, method="GET")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         html_content = response.data.decode('utf-8')
         doc = BeautifulSoup(html_content)
         h1 = doc.find_all("h1")[0]
-        self.assertEqual(h1.get_text(), "Keywords of {}".format(assignee))
+        self.assertEqual(h1.get_text(), "User Profile Keywords of {}".format(assignee))
         keywords_line = "{} {}".format(html_content.split("occurrenceData")[1].split("}")[0]
                                        .replace("=", "")[:-2].strip(), " }")
         keywords = js.loads(keywords_line)
@@ -243,7 +292,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -259,7 +308,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -273,7 +322,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -303,7 +352,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -318,7 +367,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -331,7 +380,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -345,7 +394,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -371,7 +420,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -386,7 +435,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -400,7 +449,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -425,7 +474,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -441,7 +490,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -455,7 +504,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -478,7 +527,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -497,7 +546,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -521,7 +570,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
@@ -533,7 +582,7 @@ class TestRecommendationController(BaseTestCase):
             method="POST",
             data=json.dumps(body),
             content_type="application/json")
-        self.assert200(response, 'Response body is : ' + response.data.decode('utf-8'))
+        self.assert200(response, 'Response body is: ' + response.data.decode('utf-8'))
         response = response.json
         self.assertFalse(response["error"], "An error occurred while processing the request!")
         if "errorMessage" in response:
