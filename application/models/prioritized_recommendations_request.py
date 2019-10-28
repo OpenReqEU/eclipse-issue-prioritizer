@@ -56,6 +56,11 @@ class PrioritizedRecommendationsRequest(Model):
         :return: The Requirement of this Requirement.  # noqa: E501
         :rtype: Requirement
         """
+        dikt["agent_id"] = dikt["agent_id"].strip().lower()
+        dikt["assignee"] = dikt["assignee"].strip().lower()
+        dikt["components"] = list(filter(lambda c: len(c) > 0, map(lambda c: c.strip().lower(), dikt["components"])))
+        dikt["products"] = list(filter(lambda p: len(p) > 0, map(lambda p: p.strip().lower(), dikt["products"])))
+        dikt["keywords"] = list(filter(lambda k: len(k) > 0, map(lambda k: k.strip().lower(), dikt["keywords"])))
         return util.deserialize_model(dikt, cls)
 
     def unique_key(self):
