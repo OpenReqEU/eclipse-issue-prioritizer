@@ -87,8 +87,8 @@ class BugzillaFetcher(object):
             ('last_change_time', last_change_time_value)
         ]
 
-        #if limit > 0:
-        #    parameters += [('limit', limit)]
+        if limit > 0:
+            parameters += [('limit', limit)]
 
         if assignee_mail_address is not None:
             parameters += [('assigned_to', assignee_mail_address)]
@@ -142,8 +142,6 @@ class BugzillaFetcher(object):
         futures = [session.get(u, headers=headers) for u in urls]
         done, incomplete = wait(futures)
         session.close()
-        #print(done)
-        #print(incomplete)
 
         if len(incomplete) > 0:
             print("ERROR!!! Failed to process at least one request...")
