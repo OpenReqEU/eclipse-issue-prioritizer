@@ -74,7 +74,6 @@ class KeywordExtractor(object):
             # tokenize
             r.summary_tokens = r.new_summary.split()
 
-        #tokenizer.tokenize_requirements(requirements, important_key_words, lang=lang)
         n_tokens = sum(map(lambda r: len(list(r.summary_tokens)), requirements))
         filters.filter_tokens(requirements, multitokens, ["c"])
 
@@ -96,7 +95,6 @@ class KeywordExtractor(object):
 
         stopwords.remove_stopwords(requirements)
 
-        #extracted_key_words = tokenizer.key_words_for_tokenization(all_requirement_summaries)
         extracted_unique_key_words = list(set([t for r in requirements for t in r.summary_tokens]))
         _logger.info("Number of extracted key words {} (altogether)".format(len(extracted_unique_key_words)))
 
