@@ -1,5 +1,5 @@
 [run]
-omit = coverage-reports/*, application/controllers/*, application/data/*, application/logs/*, application/static/*, application/swagger/*, application/templates/*, application/util/*, application/test/*, application.egg-info/*, .swagger-codegen/*, .tox/*, venv/*
+omit = coverage-reports/*, application/controllers/*, application/data/*, application/logs/*, application/static/*, application/swagger/*, application/templates/*, application/util/*, application/test/*, application/models/base_model_.py, application.egg-info/*, .swagger-codegen/*, .tox/*, venv/*
 [html]
 directory = coverage-reports/html
 [xml]
