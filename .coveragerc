@@ -1,0 +1,6 @@
+[run]
+omit = coverage-reports/*, application/controllers/*, application/data/*, application/logs/*, application/static/*, application/swagger/*, application/templates/*, application/util/*, application/test/*, application.egg-info/*, .swagger-codegen/*, .tox/*, venv/*
+[html]
+directory = coverage-reports/html
+[xml]
+output = coverage-reports/coverage.xml

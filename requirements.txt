@@ -13,6 +13,8 @@ beautifulsoup4==4.6.3
 #git+https://github.com/clips/pattern.git@development#egg=Pattern
 werkzeug>=0.15.3
 requests==2.20.1
+pytest>=3.7.1
+pytest-cov>=2.8.1
 nose==1.3.7
 requests-futures==0.9.9
 Flask-Testing==0.7.1
