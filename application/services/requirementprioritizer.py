@@ -47,7 +47,6 @@ class RequirementPrioritizer(object):
         dislike_unique_key = self.db.get("DISLIKE_{}_{}".format(agent_id, requirement.id))
         result = self.db.get(defer_db_key)
         defer_unique_key = result[0] if result is not False else None
-        defer_interval = result[1] if result is not False else ""
         defer_expiration_date = parser.parse(json.loads(result[2])) if result is not False else None
         now = datetime.now()
 
@@ -153,7 +152,6 @@ class RequirementPrioritizer(object):
 
 
 def _compute_contentbased_priority(keyword_frequencies: Counter, preferred_keywords: List[str], requirement: Requirement) -> float:
-    # FIXME: preferred_keywords handling is suboptimal!!!
     total_keyword_frequencies = sum(keyword_frequencies.values())
     requ_tokens = requirement.summary_tokens
     if total_keyword_frequencies == 0 or len(requ_tokens) == 0:
